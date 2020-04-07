@@ -1,0 +1,117 @@
+---
+title: "DATA 624 - Non-Linear Regression"
+author: "Zach Herold, Anthony Pagan, Betsy Rosalen"
+date: "April 14, 2020"
+output: 
+  slidy_presentation:
+    #theme: cerulean
+    css: ./slides.css
+    highlight: tango
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r global_options, echo=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+# Use Header 1 markdown to create a new slide and add the slide title...
+
+For some reason if you put a second header level on the first slide it screws everthing up, so don't do it!
+
+I tried adding a background color, but didn't like it...  All formatting can be changed in the CSS if there's anything you don't like...
+
+# Slide 2
+
+## You can put subheaders on all other slides just not the first one
+
+### Bullets look like this:
+
+- What is data visualization?
+- History of data visualization
+- Why do we need it?
+- What makes a good visualization?
+
+# Slide 3
+
+## Code looks like this...
+
+```{r}
+# Create my_data
+my_data <- mtcars
+# Print the first 6 rows
+head(my_data, 6)
+```
+
+# Slide 4
+
+## Plots look like this...
+
+```{r}
+plot(x = my_data$wt, y = my_data$mpg,
+     pch = 16, frame = FALSE,
+     xlab = "wt", ylab = "mpg", col = "#2E9FDF")
+```
+
+# Header levels - Header 1 Title
+
+## Header 2 looks like this...
+
+### Header 3 looks like this...
+
+#### Header 4 looks like this...
+
+##### Header 5 looks like this...
+
+###### Header 6 looks like this...
+
+# Tables
+
+## use html tables like below to arrange items like images
+
+<table align="center">
+<tr>
+<td>
+### Charts
+![Chart](./images/chart.PNG)
+</td>
+<td>
+### Graphs
+![Graph](./images/graph.PNG)
+</td>
+<td>
+### Maps
+![Map](images/map.PNG)
+</td>
+<td>
+### Diagrams
+![Diagram](./images/diagram.PNG)
+</td>
+</tr>
+</table>
+
+# BlockQuotes look like this...
+
+> This is a blockquote!
+
+
+# Linear vs Non-Linear Regression
+
+# Linear Regression 
+
+# Non-Linear Regression
+
+
+# Non-Linear Regression Models
+
+# Neural Networks
+
+# Multivariate Adaptive Regression Splines
+
+
+# Support Vector Machines (SVM)
+
+# K-Nearest Neighbors
+
+
+# Conclusion and any new insights into the future analytics (SVM)
