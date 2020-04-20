@@ -5,7 +5,24 @@ p { font-family: "Trebuchet MS", "Gill Sans", Helvetica, sans-serif;
     font-size: 24px;
     padding-left: 10px;}
     
-code {font-size: 18px;}
+code {  font-family: "Consolas", Helvetica, sans-serif;
+        font-size: 16px;}
+
+pre {   border-style: none;
+        border-left-width: 0px;
+        border-top-width: 0px;
+        border-right-width: 0px;
+        border-bottom-width: 0px;
+        border-color: #ffffff;
+        color: #00428C;
+        background-color: #E4E5E7;
+        margin-left: 4em; 
+        margin-right: 4em; 
+}
+
+div.sourceCode {    margin-left: 2em; 
+                    margin-right: 2em; 
+}
 	
 img { 	padding: 15px 25px 15px 25px;
 		max-width: 75%;
