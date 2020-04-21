@@ -443,17 +443,59 @@ Zach Herold, Anthony Pagan, Betsy Rosalen
   </p>
   <p class="date">April 14, 2020</p>
 </div>
-<div id="linear-vs-non-linear-regression" class="slide section level1">
-<h1>Linear vs Non-Linear Regression</h1>
+<div id="linear-regression-review" class="slide section level1">
+<h1>Linear Regression Review</h1>
+<p>Linear Regression model equations can be written either directly or indirectly in the form:</p>
+<h2 id="y_i-b_0-b_1x_i1-b_2x_i2-...-b_px_ip-e_i"><span class="math display">\[y_i = b_0 + b_1x_{i1} + b_2x_{i2} + ... + b_Px_{iP} + e_i\]</span></h2>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(y_i\)</span> is the outcome or response</li>
+<li><span class="math inline">\(b_0\)</span> is the Y-intercept</li>
+<li><span class="math inline">\(P\)</span> is the number of predictor variables</li>
+<li><span class="math inline">\(b_1\)</span> through <span class="math inline">\(b_P\)</span> are the coefficients or parameters of the regression</li>
+<li><span class="math inline">\(x_1\)</span> through <span class="math inline">\(x_P\)</span> are the predictor variables</li>
+<li><span class="math inline">\(e_i\)</span> is the prediction error term</li>
+</ul>
 </div>
-<div id="linear-regression" class="slide section level1">
-<h1>Linear Regression</h1>
+<div id="linear-regression-models" class="slide section level1">
+<h1>Linear Regression models</h1>
+<h2 id="goal-to-minimize-the-sum-of-squared-errors-sse-or-a-function-of-the-sum-of-squared-errors">Goal: to minimize the sum of squared errors (SSE) or a function of the sum of squared errors</h2>
+<h3 id="minimize-sse">Minimize SSE</h3>
+<p>OLS - Ordinary Least Squares</p>
+<p>PLS - Partial Least Squares</p>
+<h3 id="minimize-a-function-of-the-sse">Minimize a function of the SSE</h3>
+<p>Penalized Models</p>
+<ul>
+<li>Ridge Regression</li>
+<li>Lasso</li>
+<li>Elastic Net</li>
+</ul>
 </div>
-<div id="linear-vs-non-linear-regression-1" class="slide section level1">
-<h1>Linear vs Non-Linear Regression</h1>
+<div id="linear-regression-pros-and-cons" class="slide section level1">
+<h1>Linear Regression Pros and Cons</h1>
+<h2 id="advantages">Advantages:</h2>
+<ul>
+<li>They are highly interpretable</li>
+<li>Estimated coefficients allow for interpretation of the relationships between predictors</li>
+<li>Coefficient standard errors can be calculated and used to assess the statistical significance of each predictor</li>
+</ul>
+<h2 id="disadvantages">Disadvantages:</h2>
+<ul>
+<li>Useful only when the relationship between the predictors and the response falls along a straight line or flat hyperplane</li>
+<li>They may not be able to adequately capture relationships that are not linear</li>
+</ul>
 </div>
 <div id="non-linear-regression" class="slide section level1">
 <h1>Non-Linear Regression</h1>
+<h2 id="what-to-do-when-you-suspect-there-is-a-non-linear-relationship-but-dont-know-the-nature-of-the-non-linearity">What to do when you suspect there is a non-linear relationship but don’t know the nature of the non-linearity?</h2>
+<h3 id="neural-networks-nn">Neural Networks (NN)</h3>
+<p>Inspired by theories about how the brain works and the interconnectedness of the neurons in the brain</p>
+<h3 id="multivariate-regression-splines-mars">Multivariate Regression Splines (MARS)</h3>
+<p>Splits each predictor into two groups using a “hinge” or “hockey-stick” function and models linear relationships to the outcome for each group separately</p>
+<h3 id="support-vector-machines-svm">Support Vector Machines (SVM)</h3>
+<p>Aims to minimize the effect of outliers with a counter-intuitive approach that uses a subset of the training data called “support vectors” to predict new values, excluding data points closest to the regression line.</p>
+<h3 id="k-nearest-neighbors-knn">K-Nearest Neighbors (KNN)</h3>
+<p>Predicts new values by finding the closest values from the training set predictor space and taking the mean of their response values. K represents the number of closest values to consider.</p>
 </div>
 <div id="neural-networks" class="slide section level1">
 <h1>Neural Networks</h1>
@@ -1069,9 +1111,6 @@ KNeighborsClassifier (n_neighbors, p, metric)</p></li>
 <li>long training time for large datasets</li>
 </ul></li>
 </ul>
-</div>
-<div id="conclusion-and-any-new-insights-into-the-future-analytics-svm" class="slide section level1">
-<h1>Conclusion and any new insights into the future analytics (SVM)</h1>
 </div>
 
   <!-- dynamically load mathjax for compatibility with self-contained -->
