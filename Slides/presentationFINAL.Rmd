@@ -254,7 +254,7 @@ knitr::include_graphics("images/mars.PNG")
 
 ## Description
 
-- Turning used to remove parameters
+- Pruning used to remove parameters
   - The degree of the features that are added to the model and the number of retained terms.
   - The latter parameter can be automatically determined using the default pruning procedure (using GCV), set by the user or determined using an external resampling technique
 
