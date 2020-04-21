@@ -182,7 +182,7 @@ testing<-d2[ind==2,]
 ```{r }
 # Create Model
 library(neuralnet)
-nn<-neuralnet(q03_symptoms~., data=training, hidden =1 , err.fct="ce", linear.output=FALSE, rep=3) 
+nn<-neuralnet(q03_symptoms~., data=training, hidden =1 , linear.output=FALSE, rep=3) 
 ```
 
 
@@ -202,10 +202,15 @@ show(plot(nn, 2))
 ```
 
 
-```{r echo=FALSE}
+```{r echo=TRUE}
 #Predict
 output<-compute(nn, training[-3])
 head(output$net.result)
+in1<-nn$weights[[2]][[1]][1]+sum(nn$weights[[2]][[1]]*nn$startweights[[2]][[1]])
+out<-1/(1+exp(-in1))
+in2<-nn$weights[[2]][[2]][1]+sum(nn$weights[[2]][[2]][2]*out)
+out2<-1/(1+exp(-in2))
+
 ```
 
 
@@ -263,6 +268,11 @@ knitr::include_graphics("images/mars.PNG")
 
 ## Description
 
+```{r, out.width = "50px", echo=FALSE, fig.align='default'}
+knitr::include_graphics("images/lspline.PNG")
+knitr::include_graphics("images/cspline.PNG")
+```
+
 - Types
   - Polynomial Splines- continuous at the knot
   - Cubic Splines- continuous at the knot. Same as linear splines instead of power of 0 its 3.
@@ -281,6 +291,8 @@ Ref: https://www.youtube.com/watch?v=UDDXkffB-aE&t=329s
 ## Computing examples Spines
 
 SPLINES
+
+- lm(wage~bs(age,knots=c(25,40,60)), data=Wage) #cubic polynomials-
 
 ```{r echo=FALSE}
 #Splines
@@ -311,6 +323,8 @@ Ref: https://www.youtube.com/watch?v=u-rVXhsFyxo&t=450s
 
 GAM
 
+- gam(wage~s(age,df=4)+s(year,df=4)+education,data=Wage)
+
 ```{r echo=FALSE, , out.width = "600px"}
 #GAM
 require(gam)
@@ -319,23 +333,6 @@ par(mfrow=c(1,3))
 plot(gam1,se=T)
 ```
 
-# Splines
-
-## Computing examples GAM
-
-GAM for logistical Regression
-
-```{r}
-gam2<-gam(I(wage>250)~s(age,df=4)+s(year,df=4)+education,data=Wage,family=binomial)#GAM for logistic regression
-gam2a<-gam(I(wage>250)~s(age,df=4)+year+education,data=Wage,family=binomial)
-```
-
-
-```{r echo=FALSE,, out.width = "600px"}
-par(mfrow=c(1,3))
-plot(gam2)
-anova(gam2a, gam2, test="Chisq")#compare 2 gams with Anova
-```
 
 # Splines
 
@@ -343,11 +340,26 @@ anova(gam2a, gam2, test="Chisq")#compare 2 gams with Anova
 
 GAM with Natural Splines
 
+- lm(wage~ns(age,df=4)+education, data=Wage)
+
 ```{r echo=FALSE,, out.width = "600px"}
 par(mfrow=c(1,2))
 lm1<-lm(wage~ns(age,df=4)+education, data=Wage)#ns = natural spline
 plot.Gam(lm1,se=T) # use plot.Gam to plot lm in GAM
 
+```
+
+
+# Splines
+
+## Computing examples GAM
+
+GAM compare with ANOVA
+
+```{r echo=TRUE}
+gam2<-gam(I(wage>250)~s(age,df=4)+s(year,df=4)+education,data=Wage,family=binomial)#GAM for logistic regression
+gam2a<-gam(I(wage>250)~s(age,df=4)+year+education,data=Wage,family=binomial)
+anova(gam2a, gam2)#compare 2 gams with Anova
 ```
 
 
