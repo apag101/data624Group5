@@ -33,29 +33,23 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 # Neural Networks
 
 ###	Description
-Ref: https://www.youtube.com/watch?v=oYbVFhK_olY
-
 - Neural Network
 
-![](./images/syn.PNG) ![](./images/deep_nn.PNG)
+```{r, out.width = "50px", echo=FALSE, fig.align='default'}
+knitr::include_graphics("images/syn.PNG")
+knitr::include_graphics("images/deep_nn.PNG")
+
+```
 
 - Deep Neural Network - Modeled by Neural network of the brain
   -	Input-Dendrite (Artificial NN Input values)
   - Nucleus (Inputs with unique weights and summed together and passed threshold in 1 to many hidden layers (neural network 1 layer, deep) neural network >1 layers)
-  -	Output – Axon and terminal (Based on about becomes a 0 or 1 with Sigmoid function)
-  - Transformed by a nonlinear function g()
-  
-  ![](./images/sigmoidal.PNG)
-  
-  - Passthrough Synapse to next Dendrite (passed to next neuron)
-  
-- For P predictors there are H(P+1)+H+1 parameters
-  - Fix
-    -	Pre-filter the predictors
-    -	Use PCA prior to modeling to eliminate correlation
-    -	Increasing amount of weight decay
-    
+  -	Output – Axon and terminal (Based on about becomes a 0 or 1 with Sigmoid function) Transformed by a nonlinear function g(). Passthrough Synapse to next Dendrite (passed to next neuron)
+  - For P predictors there are H(P+1)+H+1 parameters
+    - For 228 predictors and 3 Hidden units would be:
+      - 3(228+1)+3+1=691 parameters
 
+Ref: https://www.youtube.com/watch?v=oYbVFhK_olY
 
 # Neural Networks
 
@@ -67,15 +61,11 @@ Ref: https://www.youtube.com/watch?v=oYbVFhK_olY
 - invvalue<-input2value+ov*weight
 - outvalue<-1/(1+exp(-iv2))
 
-
-
 # Neural Networks
 
 ## Computing examples
-Ref: https://www.youtube.com/watch?v=-Vs9Vae2KI0
 
-
-```{r}
+```{r include=FALSE}
 # Partition and Normalize all variables to 0 and 1
 library(dplyr)
 data<-read.csv("covidsurv.csv", header=TRUE)
@@ -91,66 +81,45 @@ set.seed(1234)
 ind<-sample(2, nrow(d2), replace = TRUE, prob=c(.7, .3))
 training<-d2[ind==1,]
 testing<-d2[ind==2,]
+```
 
+```{r }
 # Create Model
 library(neuralnet)
-nn<-neuralnet(q03_symptoms~., data=training, hidden = 1, err.fct="ce", linear.output=FALSE) 
+nn<-neuralnet(q03_symptoms~., data=training, hidden =1 , err.fct="ce", linear.output=FALSE, rep=3) 
 
 ```
 
 
-- Hidden is number of nodes/neuron in a layer, c(2,1) would be 2layers with  2 nodes/neurons and 1 nodes/neurons
+- Hidden is number of nodes/neuron in a layer, c(2,1) would be 2layers with  and 1 nodes/neurons
 - Can add lifesign= ‘full” to get all data points and rep = number of repetition times to run model. 
-- When plotting with Rep can use plot(n, num) to show one with min error. Same for classification line.
-- C add algorithm = one to use
+- When plotting with Rep can use plot(n, num) to show plot for rep.
 
-
+Ref: https://www.youtube.com/watch?v=-Vs9Vae2KI0
 
 # Neural Networks
 
 ## Computing examples
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width = "600px"}
 #Plot
-
-plot(nn)
+show(plot(nn, 2))
 ```
 
-
-![](./images/plot1.png)
 
 ```{r }
 #Predict
-output<-compute(nn, training)
-output$net.result
+output<-compute(nn, training[-3])
+head(output$net.result)
 
-#Confusion Matrix
-p1<- output$net.result
-pred1<-ifelse(p1>.5, 1,0)
-tab1<- table(pred1[1:17], training$q03_symptoms)
-tab1
-1-sum(diag(tab1))/sum(tab1) #missclassifications 
-output<-compute(nn, testing)
-
-p2<- output$net.result
-pred2<-ifelse(p2>.5, 1,0)
-tab2<- table(pred2[1:17], training$q03_symptoms)
-tab2
-1-sum(diag(tab2))/sum(tab2) #missclassifications
 ```
-
 
 
 
 # Neural Networks
 
-## Other
+## Pros and Cons
 
-- Other NN Models
-  - Bayesian Framework
-  - Regularization and automatic feature selection
-  - Self-Organizing maps
-  - Unsupervised, explanatory or supervised prediction
 - Pros
   - Robust with noisy data
 - Cons
@@ -162,10 +131,15 @@ tab2
     - Weight Decay with regularization with lambda values 0-.1
 
 
-
 # Multivariate Adaptive Regression Splines
 
 ## Description
+
+```{r, out.width = "50px", echo=FALSE, fig.align='default'}
+knitr::include_graphics("images/mars.PNG")
+
+
+```
 
 - Creates 2 contrasted versions to of a predictor
 - 1 or 2 predictors at a time
@@ -179,54 +153,52 @@ tab2
 - Turning used to remove parameters
   - The degree of the features that are added to the model and the number of retained terms.
   - The latter parameter can be automatically determined using the default pruning procedure (using GCV), set by the user or determined using an external resampling technique
-  
-
 
 # Multivariate Adaptive Regression Splines
+
+## Pros and Cons
+
+- Pros
+  - Model automatically conducts feature selection
+  - Interpretability, each hinge feature is responsible for modeling a specific region in the predictor space using piecewise linear model.
+  - MARS require very little pre-processing, transformation and filtering not needed.
+- Cons
+  - Speed, other models may run faster
+  
+# Splines
 
 ## Description
 
 - Types
-Ref: https://www.youtube.com/watch?v=UDDXkffB-aE&t=329s
-  - Linear Splines- continuous at the knot
-  
-  ![](./images/lspline.png)
-  
+  - Polynomial Splines- continuous at the knot
   - Cubic Splines- continuous at the knot. Same as linear splines instead of power of 0 its 3.
-  
-  ![](./images/cspline.png)
-  
   - Smoothing Splines
-  
-  ![](./images/sspline.png)
     - Splines without knots
     - Use smooth.splines() function in R. Does leave-one-out cross validation when smooth.spine(var, var2)with no df defined.
     - Find the function g that minimizes where λ is a non-negative tuning parameter.
     - loess() used for Local regression. Can find local regression for range of X by weighted least square.
-- Advantages
-  - Model automatically conducts feature selection
-  - Interpretability, each hinge feature is responsible for modeling a specific region in the predictor space using piecewise linear model.
-  - MARS require very little pre-processing, transformation and filtering not needed.
+    - GAM
 
 
+Ref: https://www.youtube.com/watch?v=UDDXkffB-aE&t=329s
 
-# Multivariate Adaptive Regression Splines
+# Splines
 
 ## Computing examples Spines
-Ref: https://www.youtube.com/watch?v=u-rVXhsFyxo&t=450s
 
 SPLINES
 
-```{r}
+```{r echo=FALSE}
 #Splines
-
 require(ISLR)
 attach(Wage)
 require(splines)
 agelims<-range(age)
 age.grid<-seq(from=agelims[1],to=agelims[2])
-fit<-lm(wage~bs(age,knots=c(25,40,60)), data=Wage) #cubic polynomials
-summary(fit)
+fit<-lm(wage~bs(age,knots=c(25,40,60)), data=Wage) #cubic polynomials-
+```
+
+```{r echo=FALSE, , out.width = "600px"}
 plot(age, wage,col="grey")
 lines(age.grid,predict(fit, list(age=age.grid)),col="darkgreen",lwd=2)
 abline(v=c(25,40,60),lty=2,col="darkgreen")
@@ -237,26 +209,48 @@ lines(fit, col="purple", lwd=2)
 fit
 ```
 
+Ref: https://www.youtube.com/watch?v=u-rVXhsFyxo&t=450s
 
-
-# Multivariate Adaptive Regression Splines
+# Splines
 
 ## Computing examples GAM
 
 GAM
 
-```{r}
+```{r echo=FALSE, , out.width = "600px"}
 #GAM
 require(gam)
 gam1<-gam(wage~s(age,df=4)+s(year,df=4)+education,data=Wage)#s= smoothing spline
 par(mfrow=c(1,3))
 plot(gam1,se=T)
-gam2<-gam(I(wage>250)~s(age,df=4)+s(year,df=4)+education,data=Wage,family=binomial)#GAM for logistic regression
-plot(gam2)
-gam2a<-gam(I(wage>250)~s(age,df=4)+year+education,data=Wage,family=binomial)
-anova(gam2a, gam2, test="Chisq")#compare 2 gams with Anova
+```
 
+# Splines
+
+## Computing examples GAM
+
+GAM for logistical Regression
+
+```{r}
+gam2<-gam(I(wage>250)~s(age,df=4)+s(year,df=4)+education,data=Wage,family=binomial)#GAM for logistic regression
+gam2a<-gam(I(wage>250)~s(age,df=4)+year+education,data=Wage,family=binomial)
+```
+
+
+```{r echo=FALSE,, out.width = "600px"}
 par(mfrow=c(1,3))
+plot(gam2)
+anova(gam2a, gam2, test="Chisq")#compare 2 gams with Anova
+```
+
+# Splines
+
+## Computing examples GAM
+
+GAM with Natural Splines
+
+```{r echo=FALSE,, out.width = "600px"}
+par(mfrow=c(1,2))
 lm1<-lm(wage~ns(age,df=4)+education, data=Wage)#ns = natural spline
 plot.Gam(lm1,se=T) # use plot.Gam to plot lm in GAM
 
@@ -265,7 +259,7 @@ plot.Gam(lm1,se=T) # use plot.Gam to plot lm in GAM
 
 # K-Nearest Neighbors
 
-```{r, out.width = "500px", echo=FALSE, fig.align='center'}
+```{r, out.width = "800px", echo=FALSE, fig.align='center'}
 knitr::include_graphics("images/knn1.png")
 ```
 
@@ -553,7 +547,7 @@ Within the scatter plot, the X symbol shows the support vector and the O symbol 
 Cover's Theorem (Thomas M. Cover (1965):  given any random set of finite points, then with high probability these points can be made linearly separable by mapping them to a higher dimension.
 
 
-```{r, out.width = "500px", echo=FALSE}
+```{r, out.width = "800px", echo=FALSE}
 knitr::include_graphics("images/svm10.png")
 ```
 
