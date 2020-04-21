@@ -77,24 +77,24 @@ Inspired by theories about how the brain works and the interconnectedness of the
 
 Splits each predictor into two groups using a "hinge" or "hockey-stick" function and models linear relationships to the outcome for each group separately
 
-### Support Vector Machines (SVM)
-
-Aims to minimize the effect of outliers with a counter-intuitive approach that uses a subset of the training data called "support vectors" to predict new values, excluding data points closest to the regression line.
-
 ### K-Nearest Neighbors (KNN)
 
-Predicts new values by finding the closest values from the training set predictor space and taking the mean of their response values.  K represents the number of closest values to consider.
+Predicts new samples by finding the closest samples in the training set predictor space and taking the mean of their response values.  K represents the number of closest samples to consider.
+
+### Support Vector Machines (SVM)
+
+Robust regression that aims to minimize the effect of outliers with an approach that uses a subset of the training data points called "support vectors" to predict new values, and counter-intuitively excludes data points closest to the regression line from the prediction equation.
 
 
 # Neural Networks
 
-###	Description
+##	Description
+
 - Neural Network
 
 ```{r, out.width = "50px", echo=FALSE, fig.align='default'}
 knitr::include_graphics("images/syn.PNG")
 knitr::include_graphics("images/deep_nn.PNG")
-
 ```
 
 - Deep Neural Network - Modeled by Neural network of the brain
@@ -110,6 +110,7 @@ Ref: https://www.youtube.com/watch?v=oYbVFhK_olY
 # Neural Networks
 
 ## Calculation
+
 ![](./images/deep_nn.PNG)
 
 - invvalue<-input1value + eachvar*weight+...
@@ -143,7 +144,6 @@ testing<-d2[ind==2,]
 # Create Model
 library(neuralnet)
 nn<-neuralnet(q03_symptoms~., data=training, hidden =1 , err.fct="ce", linear.output=FALSE, rep=3) 
-
 ```
 
 
@@ -167,9 +167,7 @@ show(plot(nn, 2))
 #Predict
 output<-compute(nn, training[-3])
 head(output$net.result)
-
 ```
-
 
 
 # Neural Networks
