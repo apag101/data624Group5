@@ -107,7 +107,7 @@ show(plot(nn, 2))
 ```
 
 
-```{r }
+```{r echo=FALSE}
 #Predict
 output<-compute(nn, training[-3])
 head(output$net.result)
@@ -150,13 +150,14 @@ knitr::include_graphics("images/mars.PNG")
   - Piece-wise linear model isolated portion of original data
   - Predictor/cut-point with smallest error
   - X<a, h(x − a) and h(a − x)
-- Turning used to remove parameters
-  - The degree of the features that are added to the model and the number of retained terms.
-  - The latter parameter can be automatically determined using the default pruning procedure (using GCV), set by the user or determined using an external resampling technique
 
 # Multivariate Adaptive Regression Splines
 
-## Pros and Cons
+## Description
+
+- Turning used to remove parameters
+  - The degree of the features that are added to the model and the number of retained terms.
+  - The latter parameter can be automatically determined using the default pruning procedure (using GCV), set by the user or determined using an external resampling technique
 
 - Pros
   - Model automatically conducts feature selection
@@ -177,7 +178,7 @@ knitr::include_graphics("images/mars.PNG")
     - Use smooth.splines() function in R. Does leave-one-out cross validation when smooth.spine(var, var2)with no df defined.
     - Find the function g that minimizes where λ is a non-negative tuning parameter.
     - loess() used for Local regression. Can find local regression for range of X by weighted least square.
-    - GAM
+  - GAM
 
 
 Ref: https://www.youtube.com/watch?v=UDDXkffB-aE&t=329s
