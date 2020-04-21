@@ -18,9 +18,9 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 
 # Linear Regression Review
 
-Linear Regression model equations can be written either directly or indirectly in the form:
+## Linear Regression model equations can be written either directly or indirectly in the form:
 
-## $$y_i = b_0 + b_1x_{i1} + b_2x_{i2} + ... + b_Px_{iP} + e_i$$
+### $$y_i = b_0 + b_1x_{i1} + b_2x_{i2} + ... + b_Px_{iP} + e_i$$
 
 Where:
 
@@ -64,10 +64,45 @@ Penalized Models
 - Useful only when the relationship between the predictors and the response falls along a straight line or flat hyperplane
 - They may not be able to adequately capture relationships that are not linear
 
+<br><br>
+
+### *What to do when you suspect there is a non-linear relationship but don't know the nature of the non-linearity?*
+
 
 # Non-Linear Regression
 
-## What to do when you suspect there is a non-linear relationship but don't know the nature of the non-linearity?
+## Non-linear regression equations take the form:
+
+### $$y = f(x,\beta) + \varepsilon$$
+
+Where:
+
+- $x$ is a vector of $p$ predictors
+- $\beta$ is a vector of $k$ parameters
+- $f()$ is a known regression function (that is not linear)
+- $\varepsilon$ is the prediction error term
+
+<br><br>
+
+### *Any model equation that cannot be written in the linear form $y_i = b_0 + b_1x_{i1} + b_2x_{i2} + ... + b_Px_{iP} + e_i$ is non-linear!*
+
+
+# Non-Linear Regression Pros and Cons
+
+## Advantages:
+
+- They can fit almost any functional form and you don't need to know the form before training the model
+
+## Disadvantages:
+
+- Often not very interpretable
+- Can be computationally expensive
+- Some models can be prone to overfitting
+
+
+# Non-Linear Regression Models
+
+## Goal: to find the (non-linear) curve that comes closest to your data
 
 ### Neural Networks (NN)
 
@@ -84,6 +119,10 @@ Predicts new samples by finding the closest samples in the training set predicto
 ### Support Vector Machines (SVM)
 
 Robust regression that aims to minimize the effect of outliers with an approach that uses a subset of the training data points called "support vectors" to predict new values, and counter-intuitively excludes data points closest to the regression line from the prediction equation.
+
+### Tree-Based Models
+
+Subject of the next presentation, so stay tuned!
 
 
 # Neural Networks
