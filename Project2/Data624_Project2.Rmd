@@ -52,8 +52,8 @@ This is role playing. I am your new boss. I am in charge of production at ABC Be
 
 ```{r}
 #Import Data
-stEval<- read_xlsx("StudentEvaluation.xlsx", col_names = TRUE)
-stData<- read_xlsx("StudentData.xlsx", col_names = TRUE)
+stEval<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentEvaluation.csv?token=AB3M6K7RXH65YIAKWZBQ6KK6XA7R2", header = TRUE)
+stData<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentData.csv?token=AB3M6K4AYHCT5HBFJYHCCSC6XBACQ", header = TRUE)
 
 #Review Data
 glimpse(stData)
