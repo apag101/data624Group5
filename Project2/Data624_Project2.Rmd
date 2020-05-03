@@ -59,7 +59,7 @@ stData<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/maste
 glimpse(stData)
 
 #Update factor
-stData$`Brand Code`<-as.factor(stData$`Brand Code`)
+stData$Brand.Code<-as.factor(stData$Brand.Code)
 
 #Missing Data
 vis_miss(stData)
