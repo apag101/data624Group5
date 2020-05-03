@@ -1,0 +1,88 @@
+---
+title: "Data 624 Project 2"
+author: "Zach Herold, Anthony Pagan, Betsy Rosalen"
+date: "5/10/2020"
+output: 
+    html_document:
+        toc: true
+        toc_float: true
+        toc_depth: 5
+        css: style.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+knitr::opts_chunk$set(echo = TRUE)
+require(knitr)
+library(ggplot2)
+library(tidyr)
+library(MASS)
+library(psych)
+library(kableExtra)
+library(dplyr)
+library(faraway)
+library(gridExtra)
+library(reshape2)
+library(leaps)
+library(pROC)
+library(caret)
+library(naniar)
+library(pander)
+library(pROC)
+library(mlbench)
+library(e1071)
+library(fpp2)
+library(lubridate)
+library(readxl)
+library(MASS)
+library(reshape)
+library(urca)
+library(tseries)
+library(tidyr)
+library(ZIM)
+```
+
+# Project 2 Description 
+
+This is role playing. I am your new boss. I am in charge of production at ABC Beverage and you are a team of data scientists reporting to me. My leadership has told me that new regulations are requiring us to understand our manufacturing process, the predictive factors and be able to report to them our predictive model of PH.Please use the historical data set I am providing.  Build and report the factors in BOTH a technical and non-technical report. I like to use Word and Excel. Please provide your non-technical report in a  business friendly readable document and your predictions in an Excel readable format. The technical report should show clearly the models you tested and how you selected your final approach. Please submit both Rpubs links and .rmd files or other readable formats for technical and non-technical reports. Also submit the excel file showing the prediction of your models for pH.
+
+```{r}
+#Import Data
+stEval<- read_xlsx("StudentEvaluation.xlsx", col_names = TRUE)
+stData<- read_xlsx("StudentData.xlsx", col_names = TRUE)
+
+#Review Data
+glimpse(stData)
+
+#Update factor
+stData$`Brand Code`<-as.factor(stData$`Brand Code`)
+
+#Missing Data
+vis_miss(stData)
+summary(complete.cases(stData))
+cstData<-subset(stData, complete.cases(stData))
+
+describe(cstData)
+describe(stData)
+
+
+#Partition Data
+set.seed(123)
+trainidx<-sample(nrow(cstData),round(0.7*nrow(cstData)),replace=F)
+traindata<-cstData[trainidx,]
+testdata<-cstData[-trainidx,]
+
+```
+
+
+# Appendix
+
+**Code used in analysis**
+```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
+
+```
+
