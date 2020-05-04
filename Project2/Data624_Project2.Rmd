@@ -50,17 +50,44 @@ library(ZIM)
 
 This is role playing. I am your new boss. I am in charge of production at ABC Beverage and you are a team of data scientists reporting to me. My leadership has told me that new regulations are requiring us to understand our manufacturing process, the predictive factors and be able to report to them our predictive model of PH.Please use the historical data set I am providing.  Build and report the factors in BOTH a technical and non-technical report. I like to use Word and Excel. Please provide your non-technical report in a  business friendly readable document and your predictions in an Excel readable format. The technical report should show clearly the models you tested and how you selected your final approach. Please submit both Rpubs links and .rmd files or other readable formats for technical and non-technical reports. Also submit the excel file showing the prediction of your models for pH.
 
+
+
 ```{r}
 #Import Data
-stEval<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentEvaluation.csv?token=AB3M6K7RXH65YIAKWZBQ6KK6XA7R2", header = TRUE)
-stData<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentData.csv?token=AB3M6K4AYHCT5HBFJYHCCSC6XBACQ", header = TRUE)
 
+#From Github
+#stData<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentData.csv?token=AB3M6K4AYHCT5HBFJYHCCSC6XBACQ", header = TRUE)
+
+#Locally
+stData<- read.csv("C:\\Users\\zhero\\Documents\\GitHub\\data624Group5\\Project2\\StudentData.csv", header = TRUE)
+
+#From Github
+#stEval<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentEvaluation.csv?token=AB3M6K7RXH65YIAKWZBQ6KK6XA7R2", header = TRUE)
+
+#Locally
+stEval<- read.csv("C:\\Users\\zhero\\Documents\\GitHub\\data624Group5\\Project2\\StudentEvaluation.csv", header = TRUE)
+```
+
+
+
+
+```{r}
 #Review Data
-glimpse(stData)
+
+#glimpse(stData)
+print(paste0("The dataset has ", dim(stData)[1], " rows and ", dim(stData)[2], " columns."))
+
+#Response Variable
+stData[colnames(stData) == "PH"] #Column 26
 
 #Update factor
-stData$Brand.Code<-as.factor(stData$Brand.Code)
+stData$Brand.Code <-as.factor(stData$Brand.Code)
+table(stData$Brand.Code)
+```
 
+
+
+```{r}
 #Missing Data
 vis_miss(stData)
 summary(complete.cases(stData))
@@ -68,14 +95,16 @@ cstData<-subset(stData, complete.cases(stData))
 
 describe(cstData)
 describe(stData)
+```
 
 
+
+```{r}
 #Partition Data
 set.seed(123)
 trainidx<-sample(nrow(cstData),round(0.7*nrow(cstData)),replace=F)
 traindata<-cstData[trainidx,]
 testdata<-cstData[-trainidx,]
-
 ```
 
 
