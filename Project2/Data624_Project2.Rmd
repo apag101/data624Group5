@@ -50,6 +50,8 @@ library(ZIM)
 
 This is role playing. I am your new boss. I am in charge of production at ABC Beverage and you are a team of data scientists reporting to me. My leadership has told me that new regulations are requiring us to understand our manufacturing process, the predictive factors and be able to report to them our predictive model of PH.Please use the historical data set I am providing.  Build and report the factors in BOTH a technical and non-technical report. I like to use Word and Excel. Please provide your non-technical report in a  business friendly readable document and your predictions in an Excel readable format. The technical report should show clearly the models you tested and how you selected your final approach. Please submit both Rpubs links and .rmd files or other readable formats for technical and non-technical reports. Also submit the excel file showing the prediction of your models for pH.
 
+# Data Review/Cleanup
+
 ```{r}
 #Import Data
 stEval<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentEvaluation.csv?token=AB3M6K7RXH65YIAKWZBQ6KK6XA7R2", header = TRUE)
@@ -64,11 +66,21 @@ stData$Brand.Code<-as.factor(stData$Brand.Code)
 #Missing Data
 vis_miss(stData)
 summary(complete.cases(stData))
-cstData<-subset(stData, complete.cases(stData))
+cstData<-subset(stData[-1], complete.cases(stData))
 
 describe(cstData)
-describe(stData)
+describe(stData[-1])
+glimpse(cstData)
 
+#plot checks
+histogram(cstData$PH)
+cor.plot(cstData)
+featurePlot(cstData,cstData$PH)
+```
+
+# Partition Data
+
+```{r}
 
 #Partition Data
 set.seed(123)
@@ -77,6 +89,47 @@ traindata<-cstData[trainidx,]
 testdata<-cstData[-trainidx,]
 
 ```
+
+# Models
+
+```{r}
+
+#RandomForeset
+require(caret)
+trctrl<- trainControl(method="repeatedcv", number=3,repeats=2)
+
+rforest <- caret::train(PH~., data=traindata, method="cforest", 
+                trControl=trctrl, preProcess=c("center","scale"),
+                tuneLength =2)
+#Rforest Model
+forPred <- predict(rforest, newdata = testdata)
+postResample(pred = forPred, obs = testdata$PH)
+
+#Tree Bag
+bag <- caret::train(PH~., data=traindata, method="treebag", 
+                trControl=trctrl, preProcess=c("center","scale"),
+                tuneLength =2)
+#Tree Bag Model
+bagPred <- predict(bag, newdata = testdata)
+postResample(pred = bagPred, obs = testdata$PH)
+
+##CTree
+ctre <- caret::train(PH~., data=traindata, method="ctree2", 
+                trControl=trctrl, preProcess=c("center","scale"),
+                tuneLength =2)
+#CTree Model
+ctrePred <- predict(ctre, newdata = testdata)
+postResample(pred = ctrePred, obs = testdata$PH)
+
+##CART
+rcart<- caret::train(PH~., data=traindata, method="rpart",
+                trControl=trctrl, preProcess=c("center","scale"),
+                tuneLength =2)
+#Cart Model
+cartPred <- predict(rcart, newdata = testdata)
+postResample(pred = cartPred, obs = testdata$PH)
+```
+
 
 
 # Appendix
