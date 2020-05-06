@@ -181,6 +181,93 @@ plot(rfImp, top=15, scales = list(y = list(cex = 0.8)))
 rfImp
 ```
 
+### Top Five Most Important 
+Mnf.Flow	0.0186774450			
+Alch.Rel	0.0063442447			
+Usage.cont	0.0032824948			
+Pressure.Vacuum	0.0017275495			
+Temperature	0.0016837020	
+
+
+```{r}
+#install.packages('rpart.plot')
+library(rpart.plot)
+tree <- rpart(PH~., data=traindata)
+prp(tree)
+```
+
+
+```{r}
+library(randomForest)
+#Using full dataset (applying na.roughfix to missing values)
+cstData_all<-subset(stData[-1])
+set.seed(123)
+trainidx2<-sample(nrow(cstData_all),round(0.7*nrow(cstData_all)),replace=F)
+traindata2<-cstData_all[trainidx2,]
+testdata2<-cstData_all[-trainidx2,]
+
+##Additional Random Forest tuning (TUNE HERE)
+#rf.model2 <- randomForest(PH~., data=traindata2, na.action=na.roughfix)
+rf.model2 <- randomForest(PH~., data=traindata2, na.action=na.roughfix, importance=TRUE) 
+rfPred2 <- predict(rf.model2, newdata = testdata2)
+postResample(pred = rfPred2, obs = testdata2$PH) #0.1097018 0.6173039
+```
+
+```{r}
+#with importance=TRUE, uses approach by Breiman to calculate the variable importance reported as MeanDecreaseAccuracy
+#https://stackoverflow.com/questions/37888619/difference-between-varimp-caret-and-importance-randomforest-for-random-fores
+rfImp2 <- as.data.frame(importance(rf.model2, scale = FALSE))
+rfImp2[order(-rfImp2[,2]),]
+```
+
+### Top Five Most Important 
+Mnf.Flow	1.215420e-02	6.8574948		
+Usage.cont	5.769698e-03	4.5754067		
+Bowl.Setpoint	5.173735e-03	2.8063547		
+Temperature	2.667381e-03	2.6427466		
+Carb.Rel	3.768302e-03	2.4322423
+
+
+
+```{r}
+##Linear Regression using only top 2 variables (Mnf.Flow & Usage.cont)
+linreg2 <- caret::train(PH~Mnf.Flow+Usage.cont+Alch.Rel+Temperature, data=traindata, method="lm", 
+                trControl=trctrl, preProcess=c("center","scale"))
+summary(linreg2) # Adjusted R-squared:  0.2785
+```
+
+__note the negative coefficients of Mnf.Flow, Usage.conf, Temperature; positive of Alch.Rel__
+
+
+```{r}
+#Subsetting data by brand
+brandA <- stData[stData$Brand.Code == 'A',]
+brandB <- stData[stData$Brand.Code == 'B',]
+brandC <- stData[stData$Brand.Code == 'C',]
+brandD <- stData[stData$Brand.Code == 'D',]
+```
+
+```{r}
+#BrandA Training/Test Splitting
+set.seed(123)
+trainidxA<-sample(nrow(brandA),round(0.7*nrow(brandA)),replace=F)
+traindataA<-cstData_all[trainidxA,]
+testdataA<-cstData_all[-trainidxA,]
+
+##RandomForest (on BrandA)
+trctrl<- trainControl(method="repeatedcv", number=3,repeats=2)
+rforestA <- caret::train(PH~., data=traindataA, method="cforest", 
+                trControl=trctrl, tuneLength =2, na.action=na.omit)
+forPredA <- predict(rforestA, newdata = testdataA)
+postResample(pred = forPredA, obs = testdataA$PH) #why NA?
+```
+
+
+```{r}
+#Variable Importance Ranking (on Brand A)
+rfImpA <- varImp(rforestA, scale = FALSE)
+plot(rfImpA, top=15, scales = list(y = list(cex = 0.8)))
+```
 
 # Appendix
 
