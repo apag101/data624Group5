@@ -44,6 +44,8 @@ library(urca)
 library(tseries)
 library(tidyr)
 library(ZIM)
+library(earth)
+library(AppliedPredictiveModeling)
 ```
 
 # Project 2 Description 
@@ -98,52 +100,52 @@ trctrl<- trainControl(method="repeatedcv", number=3,repeats=2)
 linreg <- caret::train(PH~., data=traindata, method="lm", 
                 trControl=trctrl, preProcess=c("center","scale"))
 linPred <- predict(linreg, newdata = testdata)
-postResample(pred = linPred, obs = testdata$PH) #0.1414880 0.3775156
+c('linPred:',postResample(pred = linPred, obs = testdata$PH)) #0.1414880 0.3775156
 
 ##Ridge Regression
 ridge <- caret::train(PH~., data=traindata, method="ridge", 
                 trControl=trctrl, preProcess=c("center","scale"))
 ridgePred <- predict(ridge, newdata = testdata)
-postResample(pred = ridgePred, obs = testdata$PH) #0.1414837 0.3775762
+c('ridgePred:',postResample(pred = ridgePred, obs = testdata$PH)) #0.1414837 0.3775762
 
 ##Lasso Regression
 lasso <- caret::train(PH~., data=traindata, method="lasso", 
                 trControl=trctrl, preProcess=c("center","scale"))
 lassoPred <- predict(lasso, newdata = testdata)
-postResample(pred = lassoPred, obs = testdata$PH) #0.1418941 0.3762947
+c('lassoPred:',postResample(pred = lassoPred, obs = testdata$PH)) #0.1418941 0.3762947
 
 ##RandomForest (Processed)
 rforest <- caret::train(PH~., data=traindata, method="cforest", 
                 trControl=trctrl, preProcess=c("center","scale"),
                 tuneLength =2)
 forPred <- predict(rforest, newdata = testdata)
-postResample(pred = forPred, obs = testdata$PH) #0.11550844 0.59451507
+c('forPred:',postResample(pred = forPred, obs = testdata$PH)) #0.11550844 0.59451507
 
 ##Tree Bag
 bag <- caret::train(PH~., data=traindata, method="treebag", 
                 trControl=trctrl, preProcess=c("center","scale"),
                 tuneLength =2)
 bagPred <- predict(bag, newdata = testdata)
-postResample(pred = bagPred, obs = testdata$PH) #0.12790436 0.50718903
+c('bagPred:',postResample(pred = bagPred, obs = testdata$PH)) #0.12790436 0.50718903
 
 ##CTree
 ctre <- caret::train(PH~., data=traindata, method="ctree2", 
                 trControl=trctrl, preProcess=c("center","scale"),
                 tuneLength =2)
 ctrePred <- predict(ctre, newdata = testdata)
-postResample(pred = ctrePred, obs = testdata$PH) #0.1519582 0.2804008
+c('ctrePred:',postResample(pred = ctrePred, obs = testdata$PH)) #0.1519582 0.2804008
 
 ##CART
 rcart<- caret::train(PH~., data=traindata, method="rpart",
                 trControl=trctrl, preProcess=c("center","scale"),
                 tuneLength =2)
 cartPred <- predict(rcart, newdata = testdata)
-postResample(pred = cartPred, obs = testdata$PH) #0.1593219 0.2053639
+c('cartPred:',postResample(pred = cartPred, obs = testdata$PH)) #0.1593219 0.2053639
 
 ##MARS
 marsFit <- earth(PH~., data = traindata, degree=2, nprune=14)
 marsPred <- predict(marsFit, newdata = testdata)
-postResample(pred = marsPred, obs = testdata$PH) #0.1399919 0.3912855
+c('marsPred:',postResample(pred = marsPred, obs = testdata$PH)) #0.1399919 0.3912855
 
 ##KNN
 knnGrid <-  expand.grid(k = 1:20)
@@ -153,7 +155,7 @@ knnFit <- caret::train(PH~., data = traindata,
                 preProcess=c("center","scale"),
                 tuneGrid = knnGrid)
 knnPred <- predict(knnFit, newdata = testdata)
-postResample(pred = knnPred, obs = testdata$PH) #0.1278504 0.5088682
+c('knnPred:',postResample(pred = knnPred, obs = testdata$PH)) #0.1278504 0.5088682
 
 ##SVM (Radial Kernel)
 svmGrid <-  expand.grid(C = c(1,1000))
@@ -164,7 +166,7 @@ svmFit <- caret::train(PH~., data = traindata,
                  preProcess=c("center","scale"),
                  tuneGrid = svmGrid)
 svmPred <- predict(svmFit, newdata = testdata)
-postResample(pred = svmPred, obs = testdata$PH) #0.13136218 0.48751241
+c('svmPred:', postResample(pred = svmPred, obs = testdata$PH)) #0.13136218 0.48751241
 ```
 
 
