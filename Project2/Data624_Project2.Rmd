@@ -98,46 +98,46 @@ trctrl<- trainControl(method="repeatedcv", number=3,repeats=2)
 
 ##Linear Regression
 linreg <- caret::train(PH~., data=traindata, method="lm", 
-                trControl=trctrl, preProcess=c("center","scale"))
+                trControl=trctrl)
 linPred <- predict(linreg, newdata = testdata)
 c('linPred:',postResample(pred = linPred, obs = testdata$PH)) #0.1414880 0.3775156
 
 ##Ridge Regression
 ridge <- caret::train(PH~., data=traindata, method="ridge", 
-                trControl=trctrl, preProcess=c("center","scale"))
+                trControl=trctrl)
 ridgePred <- predict(ridge, newdata = testdata)
 c('ridgePred:',postResample(pred = ridgePred, obs = testdata$PH)) #0.1414837 0.3775762
 
 ##Lasso Regression
 lasso <- caret::train(PH~., data=traindata, method="lasso", 
-                trControl=trctrl, preProcess=c("center","scale"))
+                trControl=trctrl)
 lassoPred <- predict(lasso, newdata = testdata)
 c('lassoPred:',postResample(pred = lassoPred, obs = testdata$PH)) #0.1418941 0.3762947
 
 ##RandomForest (Processed)
 rforest <- caret::train(PH~., data=traindata, method="cforest", 
-                trControl=trctrl, preProcess=c("center","scale"),
+                trControl=trctrl,
                 tuneLength =2)
 forPred <- predict(rforest, newdata = testdata)
 c('forPred:',postResample(pred = forPred, obs = testdata$PH)) #0.11550844 0.59451507
 
 ##Tree Bag
 bag <- caret::train(PH~., data=traindata, method="treebag", 
-                trControl=trctrl, preProcess=c("center","scale"),
+                trControl=trctrl,
                 tuneLength =2)
 bagPred <- predict(bag, newdata = testdata)
 c('bagPred:',postResample(pred = bagPred, obs = testdata$PH)) #0.12790436 0.50718903
 
 ##CTree
 ctre <- caret::train(PH~., data=traindata, method="ctree2", 
-                trControl=trctrl, preProcess=c("center","scale"),
+                trControl=trctrl,
                 tuneLength =2)
 ctrePred <- predict(ctre, newdata = testdata)
 c('ctrePred:',postResample(pred = ctrePred, obs = testdata$PH)) #0.1519582 0.2804008
 
 ##CART
 rcart<- caret::train(PH~., data=traindata, method="rpart",
-                trControl=trctrl, preProcess=c("center","scale"),
+                trControl=trctrl,
                 tuneLength =2)
 cartPred <- predict(rcart, newdata = testdata)
 c('cartPred:',postResample(pred = cartPred, obs = testdata$PH)) #0.1593219 0.2053639
@@ -152,7 +152,6 @@ knnGrid <-  expand.grid(k = 1:20)
 knnFit <- caret::train(PH~., data = traindata, 
                 method = "knn",
                 trControl = trctrl, 
-                preProcess=c("center","scale"),
                 tuneGrid = knnGrid)
 knnPred <- predict(knnFit, newdata = testdata)
 c('knnPred:',postResample(pred = knnPred, obs = testdata$PH)) #0.1278504 0.5088682
@@ -163,7 +162,6 @@ svmFit <- caret::train(PH~., data = traindata,
                  #type='eps-regression',
                  method = 'svmRadialCost', 
                  trControl = trctrl, 
-                 preProcess=c("center","scale"),
                  tuneGrid = svmGrid)
 svmPred <- predict(svmFit, newdata = testdata)
 c('svmPred:', postResample(pred = svmPred, obs = testdata$PH)) #0.13136218 0.48751241
@@ -232,7 +230,7 @@ Carb.Rel	3.768302e-03	2.4322423
 ```{r}
 ##Linear Regression using only top 2 variables (Mnf.Flow & Usage.cont)
 linreg2 <- caret::train(PH~Mnf.Flow+Usage.cont+Alch.Rel+Temperature, data=traindata, method="lm", 
-                trControl=trctrl, preProcess=c("center","scale"))
+                trControl=trctrl)
 summary(linreg2) # Adjusted R-squared:  0.2785
 ```
 
@@ -248,14 +246,28 @@ brandD <- stData[stData$Brand.Code == 'D',]
 ```
 
 ```{r}
+
+###Add Trimmed Means to NA Value
+r <- colnames(cstData_all)[ apply(cstData_all, 2, anyNA)]
+
+cstData_all[,colnames(cstData_all) %in% r]<-data.frame(sapply(cstData_all[,colnames(cstData_all) %in% r],
+      function(x) ifelse(is.na(x),
+            mean(x, na.rm = TRUE, trim = .1),
+            x)))
+```
+
+
+```{r}
+
 #BrandA Training/Test Splitting
 set.seed(123)
 trainidxA<-sample(nrow(brandA),round(0.7*nrow(brandA)),replace=F)
 traindataA<-cstData_all[trainidxA,]
 testdataA<-cstData_all[-trainidxA,]
 
+
 ##RandomForest (on BrandA)
-trctrl<- trainControl(method="repeatedcv", number=3,repeats=2)
+trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
 rforestA <- caret::train(PH~., data=traindataA, method="cforest", 
                 trControl=trctrl, tuneLength =2, na.action=na.omit)
 forPredA <- predict(rforestA, newdata = testdataA)
