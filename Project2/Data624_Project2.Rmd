@@ -76,8 +76,19 @@ glimpse(cstData)
 
 #plot checks
 histogram(cstData$PH)
-cor.plot(cstData)
 featurePlot(cstData,cstData$PH)
+```
+
+```{r}
+#Correlation Matrix
+library(corrplot)
+cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(cor.plt, method="color", col=col(200),  
+         type="upper", order="hclust",
+         tl.col="black", tl.srt=45, tl.cex=0.5,
+         diag=FALSE 
+         )
 ```
 
 # Partition Data
