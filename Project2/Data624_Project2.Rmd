@@ -249,6 +249,64 @@ __note the negative coefficients of Mnf.Flow, Usage.conf, Temperature; positive 
 
 
 ```{r}
+#Visualing the Mnf.Flow column 
+plot(stData$Mnf.Flow, stData$PH)
+hist(stData$Mnf.Flow)
+```
+
+
+```{r}
+#Investigating percent of null values in ranged bins of Mnf.Flow 
+nrow(stData) #2571 rows
+sum(!complete.cases(stData)) #442 rows with missing data
+
+neg.Mnf.Flow.count <- nrow(stData[stData$Mnf.Flow < 0,]) #1186 rows with negative values
+neg.complete.Mnf.Flow.count <- sum(complete.cases(stData[stData$Mnf.Flow < 0,])) #989 complete cases
+neg.complete.Mnf.Flow.count / neg.Mnf.Flow.count #0.8338954
+
+nearzeros.Mnf.Flow.count <- nrow(stData[stData$Mnf.Flow >= 0 & stData$Mnf.Flow <= 1 ,]) #81 rows
+nearzeros.complete.Mnf.Flow.count <-sum(complete.cases(stData[stData$Mnf.Flow >= 0 & stData$Mnf.Flow <= 1 ,]))
+nearzeros.complete.Mnf.Flow.count / nearzeros.Mnf.Flow.count #0.01234568 1% of data complete
+
+pos.Mnf.Flow.count <- nrow(stData[stData$Mnf.Flow > 1,]) #1308 total rows with with Mnf.Flow greater than 50
+pos.complete.Mnf.Flow.count <- sum(complete.cases(stData[stData$Mnf.Flow > 1,])) #1140 complete cases with Mnf.Flow greater than 50
+pos.complete.Mnf.Flow.count / pos.Mnf.Flow.count #0.8707951 87% of data complete
+
+
+nearzeros.Mnf.Flow.count / nrow(stData) #.03150 3% of the total number of rows accounts for 18% of the missing values
+
+```
+
+
+```{r}
+#Finding the mean of the Mnf.FLow from subset of values greater than 1, used in binning
+#pos.Mnf.Flow <- stData[stData$Mnf.Flow > 1,]
+#mean(pos.Mnf.Flow$Mnf.Flow, na.rm = T)
+```
+
+
+```{r}
+#Separating the Mnf.Flow column by thresholds
+stData$Mnf.Flow_ord <- cut(
+  stData$Mnf.Flow,
+  breaks = c(-Inf, -1, 1, 140, Inf),
+  labels = c(1, 2, 3, 4),
+  right  = FALSE
+)
+table(stData$Mnf.Flow_ord)
+```
+
+```{r}
+#Violin plot of Mnf.Flow by bins
+g <-ggplot(stData, aes(x=factor(stData$Mnf.Flow_ord), y=stData$PH))
+g+geom_violin(alpha=0.5, color='grey') +
+  geom_jitter(alpha=0.5, size=4, aes(), position = position_jitter(width = 0.1), color='darkblue', show.legend=FALSE) +
+  ggtitle("PH by Mnf.Flow classification") +
+  coord_flip()
+```
+
+
+```{r}
 #Subsetting data by brand
 brandA <- stData[stData$Brand.Code == 'A',]
 brandB <- stData[stData$Brand.Code == 'B',]
