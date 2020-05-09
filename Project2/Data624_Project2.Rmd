@@ -502,6 +502,8 @@ rforestD <- caret::train(PH~., data=traindataD, method="cforest",
 forPredD <- predict(rforestD, newdata = testdataD)
 l4<-data.frame(postResample(pred = forPredD, obs = testdataD$PH))
 
+kab_tab(table(stDatao$Brand.Code), cap="Brand Frequency")
+
 df<-data.frame()
 df<-rbind(l1[,1],l2[,1],l3[,1],l4[,1])
 rownames(df)<-c("A","B","C","D")
