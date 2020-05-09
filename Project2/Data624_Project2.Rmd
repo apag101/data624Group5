@@ -180,6 +180,12 @@ corrplot(cor.plt, method="color", col=col(200),
 ```{r}
 kab_tab(names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)], 
         cap = "Variables recommended for removal by caret::findCorrelation function at the 0.85 cutoff")
+
+sb<-names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)]
+
+cstData<-cstData[, -which(names(cstData) %in% c(sb))]
+
+
 ```
 
 # Models
@@ -425,13 +431,51 @@ trainidxA<-sample(nrow(brandA),round(0.7*nrow(brandA)),replace=F)
 traindataA<-cstData_all[trainidxA,]
 testdataA<-cstData_all[-trainidxA,]
 
-
 ##RandomForest (on BrandA)
 trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
 rforestA <- caret::train(PH~., data=traindataA, method="cforest", 
                 trControl=trctrl, tuneLength =2, na.action=na.omit)
 forPredA <- predict(rforestA, newdata = testdataA)
-postResample(pred = forPredA, obs = testdataA$PH) #why NA?
+postResample(pred = forPredA, obs = testdataA$PH)
+
+#BrandB Training/Test Splitting
+set.seed(123)
+trainidxB<-sample(nrow(brandB),round(0.7*nrow(brandB)),replace=F)
+traindataB<-cstData_all[trainidxB,]
+testdataB<-cstData_all[-trainidxB,]
+
+##RandomForest (on BrandB)
+trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
+rforestB <- caret::train(PH~., data=traindataB, method="cforest", 
+                trControl=trctrl, tuneLength =2, na.action=na.omit)
+forPredB <- predict(rforestB, newdata = testdataB)
+postResample(pred = forPredB, obs = testdataB$PH)
+
+#BrandC Training/Test Splitting
+set.seed(123)
+trainidxC<-sample(nrow(brandC),round(0.7*nrow(brandC)),replace=F)
+traindataC<-cstData_all[trainidxC,]
+testdataC<-cstData_all[-trainidxC,]
+
+##RandomForest (on BrandC)
+trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
+rforestC <- caret::train(PH~., data=traindataC, method="cforest", 
+                trControl=trctrl, tuneLength =2, na.action=na.omit)
+forPredC <- predict(rforestC, newdata = testdataC)
+postResample(pred = forPredC, obs = testdataC$PH)
+
+#BrandD Training/Test Splitting
+set.seed(123)
+trainidxD<-sample(nrow(brandD),round(0.7*nrow(brandD)),replace=F)
+traindataD<-cstData_all[trainidxD,]
+testdataD<-cstData_all[-trainidxD,]
+
+##RandomForest (on BrandD)
+trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
+rforestD <- caret::train(PH~., data=traindataD, method="cforest", 
+                trControl=trctrl, tuneLength =2, na.action=na.omit)
+forPredD <- predict(rforestD, newdata = testdataD)
+postResample(pred = forPredD, obs = testdataD$PH)
 ```
 
 
