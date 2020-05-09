@@ -76,12 +76,12 @@ We were given a dataset that consisted of 31 numerical predictor variables detai
 ```{r}
 #Import Data
 stEval<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentEvaluation.csv?token=AB3M6K7RXH65YIAKWZBQ6KK6XA7R2", header = TRUE)
-stData<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentData.csv?token=AB3M6K4AYHCT5HBFJYHCCSC6XBACQ", header = TRUE)
+stDatao<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentData.csv?token=AB3M6K4AYHCT5HBFJYHCCSC6XBACQ", header = TRUE)
 ```
 
 ```{r}
 # move PH to the first column of the dataframe
-stData <- stData[,c(26,1:25,27:33)]
+stData <- stDatao[,c(26,1:25,27:33)]
 stEval <- stEval[,c(26,1:25,27:33)]
 ```
 
@@ -219,52 +219,52 @@ trctrl<- trainControl(method="repeatedcv", number=3,repeats=2)
 linreg <- caret::train(PH~., data=traindata, method="lm", 
                 trControl=trctrl)
 linPred <- predict(linreg, newdata = testdata)
-c('linPred:',postResample(pred = linPred, obs = testdata$PH)) #0.1414880 0.3775156
+m1<-data.frame(postResample(pred = linPred, obs = testdata$PH)) #0.1414880 0.3775156
 
 ##Ridge Regression
 ridge <- caret::train(PH~., data=traindata, method="ridge", 
                 trControl=trctrl)
 ridgePred <- predict(ridge, newdata = testdata)
-c('ridgePred:',postResample(pred = ridgePred, obs = testdata$PH)) #0.1414837 0.3775762
+m2<-data.frame(postResample(pred = ridgePred, obs = testdata$PH)) #0.1414837 0.3775762
 
 ##Lasso Regression
 lasso <- caret::train(PH~., data=traindata, method="lasso", 
                 trControl=trctrl)
 lassoPred <- predict(lasso, newdata = testdata)
-c('lassoPred:',postResample(pred = lassoPred, obs = testdata$PH)) #0.1418941 0.3762947
+m3<-data.frame(postResample(pred = lassoPred, obs = testdata$PH)) #0.1418941 0.3762947
 
 ##RandomForest (Processed)
 rforest <- caret::train(PH~., data=traindata, method="cforest", 
                 trControl=trctrl,
                 tuneLength =2)
 forPred <- predict(rforest, newdata = testdata)
-c('forPred:',postResample(pred = forPred, obs = testdata$PH)) #0.11550844 0.59451507
+m4<-data.frame(postResample(pred = forPred, obs = testdata$PH)) #0.11550844 0.59451507
 
 ##Tree Bag
 bag <- caret::train(PH~., data=traindata, method="treebag", 
                 trControl=trctrl,
                 tuneLength =2)
 bagPred <- predict(bag, newdata = testdata)
-c('bagPred:',postResample(pred = bagPred, obs = testdata$PH)) #0.12790436 0.50718903
+m5<-data.frame(postResample(pred = bagPred, obs = testdata$PH)) #0.12790436 0.50718903
 
 ##CTree
 ctre <- caret::train(PH~., data=traindata, method="ctree2", 
                 trControl=trctrl,
                 tuneLength =2)
 ctrePred <- predict(ctre, newdata = testdata)
-c('ctrePred:',postResample(pred = ctrePred, obs = testdata$PH)) #0.1519582 0.2804008
+m6<-data.frame(postResample(pred = ctrePred, obs = testdata$PH)) #0.1519582 0.2804008
 
 ##CART
 rcart<- caret::train(PH~., data=traindata, method="rpart",
                 trControl=trctrl,
                 tuneLength =2)
 cartPred <- predict(rcart, newdata = testdata)
-c('cartPred:',postResample(pred = cartPred, obs = testdata$PH)) #0.1593219 0.2053639
+m7<-data.frame(postResample(pred = cartPred, obs = testdata$PH)) #0.1593219 0.2053639
 
 ##MARS
 marsFit <- earth(PH~., data = traindata, degree=2, nprune=14)
 marsPred <- predict(marsFit, newdata = testdata)
-c('marsPred:',postResample(pred = marsPred, obs = testdata$PH)) #0.1399919 0.3912855
+m8<-data.frame(postResample(pred = marsPred, obs = testdata$PH)) #0.1399919 0.3912855
 
 ##KNN
 knnGrid <-  expand.grid(k = 1:20)
@@ -273,7 +273,7 @@ knnFit <- caret::train(PH~., data = traindata,
                 trControl = trctrl, 
                 tuneGrid = knnGrid)
 knnPred <- predict(knnFit, newdata = testdata)
-c('knnPred:',postResample(pred = knnPred, obs = testdata$PH)) #0.1278504 0.5088682
+m9<-data.frame(postResample(pred = knnPred, obs = testdata$PH)) #0.1278504 0.5088682
 
 ##SVM (Radial Kernel)
 svmGrid <-  expand.grid(C = c(1,1000))
@@ -283,7 +283,13 @@ svmFit <- caret::train(PH~., data = traindata,
                  trControl = trctrl, 
                  tuneGrid = svmGrid)
 svmPred <- predict(svmFit, newdata = testdata)
-c('svmPred:', postResample(pred = svmPred, obs = testdata$PH)) #0.13136218 0.48751241
+m10<-data.frame(postResample(pred = svmPred, obs = testdata$PH)) #0.13136218 0.48751241
+
+df<-data.frame()
+df<-rbind(m1[,1],m2[,1],m3[,1],m4[,1],m5[,1],m6[,1],m7[,1],m8[,1],m9[,1],m10[,1])
+rownames(df)<-c("linePred","ridgePred","lassoPred","forPred","bagPred","ctrePred","cartPred","marsPred","knnPred","svmPred")
+colnames(df)<-c("RMSE","Rsquared","MAE")
+kab_tab(df, cap="MODELS")
 ```
 
 
@@ -443,7 +449,7 @@ cstData_all[,colnames(cstData_all) %in% r]<-data.frame(sapply(cstData_all[,colna
 
 
 ```{r}
-
+df<-data.frame()
 #BrandA Training/Test Splitting
 set.seed(123)
 trainidxA<-sample(nrow(brandA),round(0.7*nrow(brandA)),replace=F)
@@ -455,7 +461,7 @@ trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
 rforestA <- caret::train(PH~., data=traindataA, method="cforest", 
                 trControl=trctrl, tuneLength =2, na.action=na.omit)
 forPredA <- predict(rforestA, newdata = testdataA)
-postResample(pred = forPredA, obs = testdataA$PH)
+l1<-data.frame(postResample(pred = forPredA, obs = testdataA$PH))
 
 #BrandB Training/Test Splitting
 set.seed(123)
@@ -468,7 +474,7 @@ trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
 rforestB <- caret::train(PH~., data=traindataB, method="cforest", 
                 trControl=trctrl, tuneLength =2, na.action=na.omit)
 forPredB <- predict(rforestB, newdata = testdataB)
-postResample(pred = forPredB, obs = testdataB$PH)
+l2<-data.frame(postResample(pred = forPredB, obs = testdataB$PH))
 
 #BrandC Training/Test Splitting
 set.seed(123)
@@ -481,7 +487,7 @@ trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
 rforestC <- caret::train(PH~., data=traindataC, method="cforest", 
                 trControl=trctrl, tuneLength =2, na.action=na.omit)
 forPredC <- predict(rforestC, newdata = testdataC)
-postResample(pred = forPredC, obs = testdataC$PH)
+l3<-data.frame(postResample(pred = forPredC, obs = testdataC$PH))
 
 #BrandD Training/Test Splitting
 set.seed(123)
@@ -494,7 +500,13 @@ trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
 rforestD <- caret::train(PH~., data=traindataD, method="cforest", 
                 trControl=trctrl, tuneLength =2, na.action=na.omit)
 forPredD <- predict(rforestD, newdata = testdataD)
-postResample(pred = forPredD, obs = testdataD$PH)
+l4<-data.frame(postResample(pred = forPredD, obs = testdataD$PH))
+
+df<-data.frame()
+df<-rbind(l1[,1],l2[,1],l3[,1],l4[,1])
+rownames(df)<-c("A","B","C","D")
+colnames(df)<-c("RMSE","Rsquared","MAE")
+kab_tab(df, cap="BRANDS")
 ```
 
 
@@ -503,6 +515,14 @@ postResample(pred = forPredD, obs = testdataD$PH)
 rfImpA <- varImp(rforestA, scale = FALSE)
 plot(rfImpA, top=15, scales = list(y = list(cex = 0.8)))
 ```
+
+```{r}
+
+eval_p<-predict(rforest,stEval, type = "raw")
+summary(eval_p)
+write.csv(eval_p,"predicted_eval_values_PH.csv")
+```
+
 
 # Appendix
 
