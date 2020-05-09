@@ -4,82 +4,168 @@ author: "Zach Herold, Anthony Pagan, Betsy Rosalen"
 date: "5/10/2020"
 output: 
     html_document:
-        toc: true
-        toc_float: true
-        toc_depth: 5
-        css: style.css
+        df_print: kable
+        fig_caption: yes
+        fig_width: 6
+        fig_height: 6
+        highlight: tango
+        toc: yes
+        toc_depth: 3
+        toc_float:
+            collapsed: no
+            smooth_scroll: no
+        css: style2.css
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-	echo = FALSE,
-	message = FALSE,
-	warning = FALSE
-)
-knitr::opts_chunk$set(echo = TRUE)
-require(knitr)
-library(ggplot2)
-library(tidyr)
-library(MASS)
-library(psych)
-library(kableExtra)
-library(dplyr)
-library(faraway)
-library(gridExtra)
-library(reshape2)
-library(leaps)
-library(pROC)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+options(scipen=999, digits = 2)
+
+library(AppliedPredictiveModeling)
 library(caret)
+library(dplyr)
+library(e1071)
+library(earth)
+library(faraway)
+library(fpp2)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+require(knitr)
+library(leaps)
+library(lubridate)
+library(MASS)
+library(mlbench)
 library(naniar)
 library(pander)
 library(pROC)
-library(mlbench)
-library(e1071)
-library(fpp2)
-library(lubridate)
+library(psych)
 library(readxl)
-library(MASS)
 library(reshape)
-library(urca)
-library(tseries)
+library(reshape2)
 library(tidyr)
+library(tseries)
+library(urca)
 library(ZIM)
-library(earth)
-library(AppliedPredictiveModeling)
+
+# Table formatting functions
+kab_tab <- function(df, cap){
+  df %>% kable(caption=cap) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                full_width = T)
+}
+kab_tab2 <- function(df, cap){
+  df %>% kable(caption=cap) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                full_width = F)
+}
+# kab_tab_pdf <- function(df, cap){
+#     kable(df, caption=cap, "latex", booktabs = T) %>%
+#         kable_styling(latex_options = c("striped", "HOLD_position", "scale_down"))
+# }
 ```
 
-# Project 2 Description 
+# Project Description 
 
-This is role playing. I am your new boss. I am in charge of production at ABC Beverage and you are a team of data scientists reporting to me. My leadership has told me that new regulations are requiring us to understand our manufacturing process, the predictive factors and be able to report to them our predictive model of PH.Please use the historical data set I am providing.  Build and report the factors in BOTH a technical and non-technical report. I like to use Word and Excel. Please provide your non-technical report in a  business friendly readable document and your predictions in an Excel readable format. The technical report should show clearly the models you tested and how you selected your final approach. Please submit both Rpubs links and .rmd files or other readable formats for technical and non-technical reports. Also submit the excel file showing the prediction of your models for pH.
+The data science team at ABC Beverage has been asked to provide an analysis of our manufacturing process, the predictive factors, and a predictive model of PH in order to comply with new regulations.  This report details the steps taken in our analysis, including the assumptions made, the methodology used, the models tested, the model selected and the selection process, and the findings and conclusions reached from our analysis.
 
-# Data Review/Cleanup
+# Data Description
+
+We were given a dataset that consisted of 31 numerical predictor variables detailing a wide range of production processes, 1 categorical variable `Brand.Code`, and our target variable, `PH`.  Summary statistics for these variables can be seen in the two tables below.
 
 ```{r}
 #Import Data
 stEval<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentEvaluation.csv?token=AB3M6K7RXH65YIAKWZBQ6KK6XA7R2", header = TRUE)
 stData<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentData.csv?token=AB3M6K4AYHCT5HBFJYHCCSC6XBACQ", header = TRUE)
-
-#Review Data
-glimpse(stData)
-
-#Update factor
-stData$Brand.Code<-as.factor(stData$Brand.Code)
-
-#Missing Data
-vis_miss(stData)
-summary(complete.cases(stData))
-cstData<-subset(stData[-1], complete.cases(stData))
-
-describe(cstData)
-describe(stData[-1])
-glimpse(cstData)
-
-#plot checks
-histogram(cstData$PH)
-featurePlot(cstData,cstData$PH)
 ```
 
 ```{r}
+# move PH to the first column of the dataframe
+stData <- stData[,c(26,1:25,27:33)]
+stEval <- stEval[,c(26,1:25,27:33)]
+```
+
+```{r}
+# https://stackoverflow.com/questions/5863097/selecting-only-numeric-columns-from-a-data-frame
+
+num_sum <- describe(Filter(is.numeric, stData))
+kab_tab(num_sum[,c(2,3,4,8,5,9,10:13)], cap="Summary statistics for numerical variables")
+
+cat_sum <- summary(Filter(is.factor, stData))
+kab_tab(cat_sum, cap="Summary of categorical variable, Brand.Code")
+```
+
+## Distributions
+
+Our predictors have a wide range of distributions with some normal, some skewed, some bi-modal, and some with high zero inflation.  Standardization and normalization were used for model building, the specifics of which will be described for each model in the "Models" section of the report below.  Our target, `PH`, has a mostly normal distribution.
+
+```{r fig.height=7, fig.width=9}
+stData[,-2] %>%
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram(fill = '#4575b4') +
+  theme(panel.background = element_blank(), legend.position="top")
+```
+
+Since we only have one categorical variable, `Brand.Code`, which is related to brand and marketing rather than manufacturing process, we plotted it against each predictor and the target to see if there were any noticeable patterns that may be relevant to our model.  As you can see in the plots below the brand code is evenly distributed among most predictors and most importantly evenly distributed in our target variable, `PH`, so it does not appear to have any predictive value and so was removed from our dataset for model training.  
+
+```{r fig.height=7, fig.width=9}
+stData %>%
+  gather(-Brand.Code, key = "var", value = "val") %>%
+  ggplot(aes(x = val, fill=Brand.Code)) +
+  geom_histogram(bins=10, alpha=1) +
+  facet_wrap(~ var, scales = "free") +
+  scale_fill_manual("Brand.Code",
+                    values = c('#d73027','#fc8d59','#fee090',
+                               '#e0f3f8','#91bfdb','#4575b4')) +
+  xlab("") +
+  ylab("") +
+  theme(panel.background = element_blank(), legend.position="top")
+```
+
+```{r eval=FALSE}
+stData <- stData[-2]
+```
+
+## Missing Values
+
+There was some missing data in our predictors most noticeably in `MFR`, which had 8.25% missing values as can be seen in the plot below.  There doesn't seem to be any pattern in the missingness however, so it is unlikely that it has any predictive value.  
+
+```{r fig.width=10}
+# Missing Data
+vis_miss(stData[-2])
+```
+
+The plot below confirms that there is no apparent pattern in the missing values.  Incomplete cases comprise only about 17% of the substantial dataset, and since there did not seem to be any patterns to the missingness, the decision was made to remove them completely from our dataset leaving us with the remaining 2129 complete cases.
+
+```{r fig.height=7, fig.width=7}
+gg_miss_upset(stData,
+              nsets = 12,
+              nintersects = 18)
+```
+
+```{r eval=FALSE}
+summary(complete.cases(stData))
+```
+
+
+```{r}
+cstData <- subset(stData[-2], complete.cases(stData))
+```
+
+## Relationships Between Variables
+
+The plots below were used to assess if there were any clear linear relationships between the predictors and the target, `PH`.  Few, if any, relationships are immediately apparent.
+
+```{r fig.height=7, fig.width=9}
+#plot checks
+featurePlot(cstData[-1],cstData$PH)
+```
+
+A correlation plot shows some strong correlations between predictors.  The `findCorrelation` function from the `caret` library recommends removing the `MFR`, `Hyd.Pressure2`, `Carb.Rel`, `Air.Pressurer`, `Carb.Flow`, `Hyd.Pressure4`, and `Filler.Level` variables at a 0.85 correlation cutoff.  Upping the cutoff to 0.9 only removes one variable, `Carb.Flow`, from that list.  
+
+```{r fig.width=8}
 #Correlation Matrix
 library(corrplot)
 cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
@@ -91,7 +177,14 @@ corrplot(cor.plt, method="color", col=col(200),
          )
 ```
 
-# Partition Data
+```{r}
+kab_tab(names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)], 
+        cap = "Variables recommended for removal by caret::findCorrelation function at the 0.85 cutoff")
+```
+
+# Models
+
+We randomly partitioned our dataset into training and validation subsets with 70% for training and 30% set aside for testing.
 
 ```{r}
 #Partition Data
@@ -101,9 +194,7 @@ traindata<-cstData[trainidx,]
 testdata<-cstData[-trainidx,]
 ```
 
-# Models
-
-```{r}
+```{r cache=TRUE}
 require(caret)
 trctrl<- trainControl(method="repeatedcv", number=3,repeats=2)
 
@@ -209,7 +300,7 @@ prp(tree)
 ```{r}
 library(randomForest)
 #Using full dataset (applying na.roughfix to missing values)
-cstData_all<-subset(stData[-1])
+cstData_all<-subset(stData[-2])
 set.seed(123)
 trainidx2<-sample(nrow(cstData_all),round(0.7*nrow(cstData_all)),replace=F)
 traindata2<-cstData_all[trainidx2,]
