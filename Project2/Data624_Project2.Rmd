@@ -188,6 +188,17 @@ cstData<-cstData[, -which(names(cstData) %in% c(sb))]
 
 ```
 
+```{r}
+#Displaying highly correlated pairs
+cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
+cor.plt[lower.tri(cor.plt,diag=TRUE)]=NA  #Prepare to drop duplicates and meaningless information
+cor.plt=as.data.frame(as.table(cor.plt))  #Turn into a 3-column table
+cor.plt=na.omit(cor.plt)  #Get rid of the junk we flagged above
+cor.plt=subset(cor.plt, abs(cor.plt$Freq)>0.8)
+cor.plt=cor.plt[order(-abs(cor.plt$Freq)),]    #Sort by highest correlation (whether +ve or -ve)
+cor.plt
+```
+
 # Models
 
 We randomly partitioned our dataset into training and validation subsets with 70% for training and 30% set aside for testing.
