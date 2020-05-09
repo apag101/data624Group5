@@ -347,13 +347,21 @@ Carb.Rel	3.768302e-03	2.4322423
 
 
 ```{r}
-##Linear Regression using only top 2 variables (Mnf.Flow & Usage.cont)
-linreg2 <- caret::train(PH~Mnf.Flow+Usage.cont+Alch.Rel+Temperature, data=traindata, method="lm", 
-                trControl=trctrl)
-summary(linreg2) # Adjusted R-squared:  0.2785
+#Comparing Adj. Rsquared for OLS Linear Regression models, inputting the top-ten most important variables from Random Forest
+##Linear Regression using all variables (Mnf.Flow_ord instead of Mnf.Flow)
+linreg2 <- caret::train(PH~., data=traindata, method="lm",  trControl=trctrl)
+summary(linreg2) #Adjusted R-squared:  0.356
+
+##Linear Regression using only top 10 variables 
+linreg3 <- caret::train(PH~Mnf.Flow+Usage.cont+Alch.Rel+Bowl.Setpoint+Pressure.Vacuum+Temperature+Oxygen.Filler+Hyd.Pressure3+Carb.Pressure1+Hyd.Pressure1, data=traindata, method="lm",  trControl=trctrl)
+summary(linreg3) # Adjusted R-squared:  0.328 
+
+##Linear Regression using only top 8 variables (Removing Pressure.Vacuum and Hyd.Pressure1)
+linreg4 <- caret::train(PH~Mnf.Flow+Usage.cont+Alch.Rel+Bowl.Setpoint+Temperature+Oxygen.Filler+Hyd.Pressure3+Carb.Pressure1, data=traindata, method="lm", trControl=trctrl)
+summary(linreg4) # Adjusted R-squared:  0.329  
 ```
 
-__note the negative coefficients of Mnf.Flow, Usage.conf, Temperature; positive of Alch.Rel__
+__note the negative coefficients of Mnf.Flow, Usage.conf, Temperature; positive of Alch.Rel, Bowl.Setpoint, Hyd.Pressure3, Carb.Pressure1__
 
 
 ```{r}
