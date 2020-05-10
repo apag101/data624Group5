@@ -371,9 +371,10 @@ __note the negative coefficients of Mnf.Flow, Usage.conf, Temperature; positive 
 
 
 ```{r}
-#Visualing the Mnf.Flow column 
+#Visualing the Mnf.Flow column
 plot(stData$Mnf.Flow, stData$PH)
 hist(stData$Mnf.Flow)
+
 ```
 
 
@@ -513,9 +514,24 @@ kab_tab(df, cap="BRANDS")
 
 
 ```{r}
+
 #Variable Importance Ranking (on Brand A)
 rfImpA <- varImp(rforestA, scale = FALSE)
-plot(rfImpA, top=15, scales = list(y = list(cex = 0.8)))
+plot(rfImpA, top=5, scales = list(y = list(cex = 0.8)))
+
+#Variable Importance Ranking (on Brand B)
+rfImpB <- varImp(rforestB, scale = FALSE)
+plot(rfImpB, top=5, scales = list(y = list(cex = 0.8)))
+
+#Variable Importance Ranking (on Brand C)
+rfImpC <- varImp(rforestC, scale = FALSE)
+plot(rfImpC, top=5, scales = list(y = list(cex = 0.8)))
+
+#Variable Importance Ranking (on Brand D)
+rfImpD <- varImp(rforestD, scale = FALSE)
+plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
+
+
 ```
 
 

@@ -130,14 +130,14 @@ knitr::include_graphics("images/Violinplot.png")
 We further separate the data by brands. 
 
 ```{r}
-knitr::include_graphics("images/BrandFreq.png")
+knitr::include_graphics(c("images/BrandFreq.png","images/Brands.png"))
 ```
 
 
 We list the top-five most important variables according to brand type
 
 ```{r, echo=FALSE, out.width = '50%'}
-knitr::include_graphics("images/Brands.png")
+knitr::include_graphics(c("images/BrandA.png","images/BrandB.png","images/BrandA.png","images/BrandB.png"))
 ```
 
 
