@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  10 MAY 2020 02:05
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  10 MAY 2020 12:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -853,13 +853,13 @@ unk-5-1.pdf  used on input line 237.
 (pdftex.def)             Requested size: 469.75452pt x 354.55992pt.
 [3 <./Data624_Technical_Report_files/figure-latex/unnamed-chunk-4-1.pdf>]
 <Data624_Technical_Report_files/figure-latex/unnamed-chunk-7-1.pdf, id=76, 717.
-68124pt x 474.77374pt>
+68124pt x 547.04375pt>
 File: Data624_Technical_Report_files/figure-latex/unnamed-chunk-7-1.pdf Graphic
  file (type pdf)
 <use Data624_Technical_Report_files/figure-latex/unnamed-chunk-7-1.pdf>
 Package pdftex.def Info: Data624_Technical_Report_files/figure-latex/unnamed-ch
 unk-7-1.pdf  used on input line 247.
-(pdftex.def)             Requested size: 469.76161pt x 310.76537pt.
+(pdftex.def)             Requested size: 469.76161pt x 358.07004pt.
 [4 <./Data624_Technical_Report_files/figure-latex/unnamed-chunk-5-1.pdf>]
 <Data624_Technical_Report_files/figure-latex/unnamed-chunk-8-1.pdf, id=89, 491.
 8375pt x 420.57124pt>
@@ -979,14 +979,14 @@ unk-28-1.pdf  used on input line 588.
                                                   \fi \fi 
 l.590 \begin{verbatim}
                       ]
-<Data624_Technical_Report_files/figure-latex/unnamed-chunk-32-1.pdf, id=204, 48
-0.79625pt x 278.03876pt>
+<Data624_Technical_Report_files/figure-latex/unnamed-chunk-32-1.pdf, id=204, 47
+9.7925pt x 279.0425pt>
 File: Data624_Technical_Report_files/figure-latex/unnamed-chunk-32-1.pdf Graphi
 c file (type pdf)
 <use Data624_Technical_Report_files/figure-latex/unnamed-chunk-32-1.pdf>
 Package pdftex.def Info: Data624_Technical_Report_files/figure-latex/unnamed-ch
 unk-32-1.pdf  used on input line 620.
-(pdftex.def)             Requested size: 469.76118pt x 271.6573pt.
+(pdftex.def)             Requested size: 469.76147pt x 273.20856pt.
 [14 <./Data624_Technical_Report_files/figure-latex/unnamed-chunk-28-1.pdf>]
 <Data624_Technical_Report_files/figure-latex/unnamed-chunk-37-1.pdf, id=217, 47
 5.7775pt x 277.035pt>
@@ -1050,176 +1050,172 @@ Package xcolor Warning: Incompatible color definition on input line 680.
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
 (Font)              Font shape `T1/lmtt/b/n' tried instead on input line 682.
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Overfull \vbox (0.83203pt too high) detected at line 1152
- []
-
-
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [17 <./Data624_Technical_Report_files/figure-latex/unnamed-chunk-38-3.pdf> <./D
 ata624_Technical_Report_files/figure-latex/unnamed-chunk-38-4.pdf>]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [18]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [19]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [20]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [21]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [22]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [23]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [24]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1152
+Underfull \vbox (badness 10000) detected at line 1157
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 [25]
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1152.
+Package xcolor Warning: Incompatible color definition on input line 1157.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1154.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1159.
 [26]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1154.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1159.
 (./Data624_Technical_Report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1154.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1154.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1159.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1159.
 
 Package rerunfilecheck Info: File `Data624_Technical_Report.out' has not change
 d.
@@ -1227,12 +1223,12 @@ d.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1154.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1159.
  ) 
 Here is how much of TeX's memory you used:
  14519 strings out of 492649
  214797 string characters out of 6129622
- 426938 words of memory out of 5000000
+ 428417 words of memory out of 5000000
  18047 multiletter control sequences out of 15000+600000
  53706 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1250,7 +1246,7 @@ st/fonts/type1/public/lm/lmr7.pfb></usr/local/texlive/2018/texmf-dist/fonts/typ
 e1/public/lm/lmtk10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/
 lm/lmtt10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/public/lm/lmtti10
 .pfb>
-Output written on Data624_Technical_Report.pdf (26 pages, 3116181 bytes).
+Output written on Data624_Technical_Report.pdf (26 pages, 3116192 bytes).
 PDF statistics:
  380 PDF objects out of 1000 (max. 8388607)
  293 compressed objects within 3 object streams

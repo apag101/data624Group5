@@ -686,21 +686,3 @@ plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
 ```
 
 
-```{r}
-
-eval_p<-predict(rforest, stEval, type = "raw")
-# summary(eval_p)
-write.csv(eval_p,"predicted_eval_values_PH.csv")
-
-save.image(file = "Data624_Project2.RData")
-```
-
-
-# Appendix
-
-**Code used in analysis**
-
-```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
-
-```
-
