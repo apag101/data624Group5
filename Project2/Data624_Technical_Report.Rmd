@@ -1,5 +1,5 @@
 ---
-title: "Data 624 Project 2"
+title: "Analysis of the Beverage Production Factors that Impact Product pH at ABC Beverage Company - Technical Report"
 author: "Zach Herold, Anthony Pagan, Betsy Rosalen"
 date: "5/10/2020"
 output: 
@@ -29,6 +29,7 @@ options(scipen=999, digits = 2)
 
 library(AppliedPredictiveModeling)
 library(caret)
+library(corrplot)
 library(e1071)
 library(earth)
 library(faraway)
@@ -46,9 +47,11 @@ library(pander)
 library(pROC)
 library(pscl)
 library(psych)
+library(randomForest)
 library(readxl)
 library(reshape)
 library(reshape2)
+library(rpart.plot)
 library(tidyverse)
 library(tseries)
 library(urca)
@@ -179,7 +182,6 @@ A correlation plot shows some strong correlations between predictors.  The `find
 ```{r fig.height=7, fig.width=8}
 
 #Correlation Matrix
-library(corrplot)
 cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
 corrplot(cor.plt, method="color", col=col(200),  
@@ -213,7 +215,7 @@ kab_tab2(cor.plt2, cap="Highly Correlated Variable Pairs")
 
 ```{r}
 
-vars <- c(as.character(cor.plt$Var1), as.character(cor.plt$Var2))
+vars <- c(as.character(cor.plt2$Var1), as.character(cor.plt2$Var2))
 vars <- as.data.frame(table(vars))
 vars <- vars[order(-vars$Freq),]
 rownames(vars) <- c()
@@ -380,8 +382,6 @@ For comparison we also plotted a tree diagram which gave us similar results with
 
 ```{r fig.height=5, fig.width=7}
 
-#install.packages('rpart.plot')
-library(rpart.plot)
 tree <- rpart(PH~., data=traindata)
 prp(tree)
 ```
@@ -392,7 +392,6 @@ Since we had removed 7 predictors before tuning our models we decided to try re-
 
 ```{r}
 
-library(randomForest)
 #Using full dataset (applying na.roughfix to missing values)
 cstData_all<-subset(stData[-2])
 set.seed(123)
@@ -460,35 +459,38 @@ kab_tab2(df, cap="MODELS")
 # df
 ```
 
-One interesting finding from this experiment was that we were able to determine that the impact of `Mnf.Flow`, `Usage.conf`, `Temperature`, `Oxygen.Filler`, and `Pressure.Setpoint` is negative due to negative coefficients and the impact of `Carb.Rel`, `Bowl.Setpoint`, `Hyd.Pressure3`, `Hyd.Pressure3` is positive due to positive coefficients.  So there is a balancing act between these variables with some pulling in one direction on the pH and some in the other.  Thus a change in one may necessitate a change in the others.  The model coefficents can be seen in the model summary below.
+One interesting finding from this experiment was that we were able to determine that the impact of `Mnf.Flow`, `Usage.conf`, `Temperature`, `Oxygen.Filler`, and `Pressure.Setpoint` are negative due to negative coefficients and the impact of `Carb.Rel`, `Bowl.Setpoint`, and `Hyd.Pressure3` are positive due to positive coefficients.  So there is a balancing act between these variables with some pulling in one direction on the pH and some in the other.  Thus a change in one may necessitate a change in the others.  The model coefficients can be seen in the model summary below.
 
 ```{r}
 
 summary(linreg4) # Adjusted R-squared:  0.329
 ```
 
-## Mnf.Flow Analysis
+## `Mnf.Flow` Analysis
 
-According to the random forest and linear regression (with scaled data) models, the variable which accounts for the highest proportion of model variance is the Mnf.Flow (minimum night flow?) measure.
+According to the random forest and linear regression (with scaled data) models, the variable which accounts for the highest proportion of model variance is the `Mnf.Flow` (minimum night flow?) measure.
 
-It is not surprising that Mnf.Flow appears in our model as the most critical, given that it is also the variable that has the highest absolute correlation with pH (-.459). Top-ranking correlations to pH are listed here by absolute value:
+It is not surprising that `Mnf.Flow` appears in our model as the most critical, given that it is also the variable that has the highest absolute correlation with `PH` (-.459). Top-ranking correlations to `PH` are listed here by absolute value:
 
-```{r}
-cor.ph <- t(as.data.frame(cor(as.matrix(stData['PH']), as.matrix(stData[,-1]))))
+```{r eval=FALSE}
+cor.ph <- t(as.data.frame(cor(as.matrix(stData['PH']), 
+                              as.matrix(stData[,c(-1,-2)]), 
+                              use = 'complete.obs')))
 idx <- order(-abs(cor.ph[,1]))
 cor.ph <- data.frame(correlation=cor.ph[idx,])
 head(cor.ph,10)
 ```
 
-However as we investigate further into the predictive value of this variable, we note its tri-modal shape, with a huge spike at -100, accounting for over 46% of all values. There is another spike close to 0 (3% of observations), and then a third near-normal distribution centered around 140. Furthermore, when we test the correlation between PH and Mnf.Flow for only strictly positive values of Mnf.Flow, any correlation almost completely disappears (-0.05567). 
+However as we investigate further into the predictive value of this variable, we note its tri-modal shape, with a huge spike at -100, accounting for over 46% of all values. There is another spike close to 0 (3% of observations), and then a third near-normal distribution centered around 140. Furthermore, when we test the correlation between `PH` and `Mnf.Flow` for only strictly positive values of `Mnf.Flow`, any correlation almost completely disappears (-0.05567). 
 
 ```{r fig.height=4, fig.width=7}
 par(mfrow=c(1,2))
 #Visualing the Mnf.Flow column
-plot(stData$Mnf.Flow, stData$PH)
-hist(stData$Mnf.Flow)
+plot(stData$Mnf.Flow, stData$PH, main='pH/Mnf.Flow Scatterplot', xlab='Mnf.Flow values',ylab='pH')
+hist(stData$Mnf.Flow, main='Histogram for Mnf.Flow', xlab='Mnf.Flow values')
 ```
-The irregular distribution of the data for this variable allows us to consider that we are actually looking at four distinct manufacturing processes, and that the -100 value is actually more of a categorical placekeeper. As such, we delve into this variable further by mutating into four ordinal values separated by buckets of Mnf.FLow in the following ranges {1: [-1000, -1), 2: [-1, 1), 3: [1, 140), 4: [140, 1000]}
+
+The irregular distribution of the data for this variable allows us to consider that we are actually looking at four distinct manufacturing processes, and that the -100 value is actually more of a categorical placekeeper. As such, we delve into this variable further by mutating into four ordinal values separated by buckets of `Mnf.FLow` in the following ranges {1: [-1000, -1), 2: [-1, 1), 3: [1, 140), 4: [140, 1000]}
 
 Here we are careful to retain the original dataset, rather than one which removed incomplete cases. We do so because a disproportionate amount of cases of type 2 (in range of -1 to 1) have at least one missing value. In fact only 1% of the observations in that range are complete. 
 
@@ -625,7 +627,7 @@ df <- df[order(df$RMSE),]
 kab_tab2(df, cap="BRANDS")
 ```
 
-The mean pH for our datatset is 8.55, however, it is possible that pH may vary with brand profile.  From this violin plot, we observe that the distribution of pH values for Brand D tends to be above mean, while that of Brand C is markedly below mean. We further investigate what factors determine the acidic signature of Brand C, with the conclusion that lower balling method levels (which promote solution alkalinity) may at least partially contribute.
+The mean pH for our dataset is 8.55, however, it is possible that pH may vary with brand profile.  From this violin plot, we observe that the distribution of pH values for Brand D tends to be above mean, while that of Brand C is markedly below mean. We further investigated what factors determine the acidic signature of Brand C, with the conclusion that lower balling method levels (which promote solution alkalinity) may at least partially contribute.
 
 ```{r fig.height=4, fig.width=7}
 
@@ -639,7 +641,7 @@ ggplot(stData, aes(Brand.Code, PH)) +
   theme(panel.background = element_blank(), legend.position="top")
 ```
 
-We discovered that `Mnf.Flow` is no longer the most important variable at the brand level; rather, `Temperature` is, ranking in the top five for each of the four brands.  By contrast `Mnf.Flow` only shows up in the top 5 list for two brands and in the 3rd and 5th spots. These results suggest that `Mnf.Flow` may not be as robust a predictor as our other models indiciated.
+We discovered that `Mnf.Flow` is no longer the most important variable at the brand level; rather, `Temperature` is, ranking in the top five for each of the four brands.  By contrast `Mnf.Flow` only shows up in the top 5 list for two brands and in the 3rd and 5th spots. These results suggest that `Mnf.Flow` may not be as robust a predictor as our other models indicated.
 
 ```{r fig.height=3.5, fig.width=3.5}
 
@@ -664,16 +666,35 @@ plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
 ```
 
 
+# Predictions
+
+See the accompanying Excel file, "predicted_eval_values_PH.csv" for predictions of pH made by applying our Random Forest model to new data. 
+
 ```{r}
 
-# eval_p <- predict(rforest, stEval, type = "raw")
 eval_p2 <- predict(rf.model2, newdata = stEval[-2]) # -2 to remove Brand.Code categorical variable
 
-# summary(eval_p)
 write.csv(eval_p2,"predicted_eval_values_PH.csv")
-
 save.image(file = "Data624_Project2.RData")
 ```
+
+# Conclusions
+
+* The main processes putting downward (acetic) pressure on pH are: `Mnf.Flow`, `Usage.conf`, `Temperature`, `Oxygen.Filler`, and `Pressure.Setpoint` when increased;  Positive adjustment may be attained through increase in `Carb.Rel`, `Bowl.Setpoint`, and `Hyd.Pressure3`;
+
+* There is strong correlation between several of the manufacturing processes, in particular: `MFR`, `Hyd.Pressure2`, `Carb.Rel`, `Air.Pressurer`, `Carb.Flow`, `Hyd.Pressure4`, and `Filler.Level`;
+
+* Some of the observations have missing data in our predictors, most noticeably in `MFR`, which had 8.25% missing values, as well as `Mnf.Flow` when in the range of 0 to 1. 
+
+* The metric most highly-correlated with `PH`, `Mnf.Flow`, has an irregular tri-modal distribution, with approx. 46% of values -100 or less, indicative of a distinct qualitative process of itself. Barring the negative and near-zero values, the positive values, which are approximately normal in distribution, have little correlation to `PH`. `Mnf.Flow`'s statistically significant predictive value can be wholly distilled from its transformation into a three-class categorical variable.
+
+* When the entire dataset is subsetted according to `Brand.Code`, a different series of critical variables emerges for each class from those of the general model. `Mnf.Flow` loses its force as a predictor, while `Temperature` and `Air.Pressurer` become key, ranking in the top five most important variables for each of the four brands under a random forest model.
+
+* pH varies with brand profile, especially in the case of Brand D (tending to be above-mean) and Brand C (markedly below mean). We further investigate what factors determine the acidic signature of Brand C, with the conclusion that lower `balling` method levels (which promote solution alkalinity) may at least partially contribute.
+
+# Recommendations for Further Analysis
+
+Since we had success in strengthening `Mnf.Flow`'s predictive value by transforming it into a categorical variable, we may want to investigate using the same transformation on some of the other variables with multi-modal distributions.  Some of the variables with multi-modal distributions include: `Alch.Rel`, `Balling`, `Balling.Lvl`, `Carb.Flow`, `Carb.Rel`, `Density` and all three `Hyd.Pressure` variables.  In addition, rather than transforming these variables, we may want to investigate using piecewise linear or MARS models with finer tuning in order to preserve the distributions in each bin.
 
 
 # Appendix

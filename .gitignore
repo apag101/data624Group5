@@ -4,7 +4,11 @@ Slides/rsconnect/documents/presentationFINAL.Rmd/rpubs.com/rpubs/Document.dcf
 Project2/Data624_Project2_cache
 Project2/Data624_Project2_files
 Project2/Data624_Technical_Report_files
+Project2/Data624_Non-Technical_Report_files
 Project2/Data624_Project2.RData
+
+Project2/*.log
+
 
 # History files
 .Rhistory
