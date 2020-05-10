@@ -287,7 +287,23 @@ plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
 
 # Predictions
 
-See the accompanying csv file, "predicted_eval_values_PH.csv" for predictions of pH made by applying our Random Forest model to new data. 
+The goodness of fit plot below shows that our predictors fall close to the fit line. See the accompanying csv file, "predicted_eval_values_PH.csv" for predictions of pH made by applying our Random Forest model to new data. 
+
+```{r}
+eval_p2 <- predict(rf.model2, newdata = stEval[-2]) # -2 to remove Brand.Code categorical variable
+
+PHMut <- mutate(stEval, predProb = predict(rf.model2 ,stEval,type = "response"))
+grpPH <- group_by(PHMut, cut(eval_p2, breaks = unique(quantile(eval_p2, (0:25)/26, na.rm=TRUE))))
+
+#hosmer-lemeshow stat
+hlDf <- summarise(grpPH, y= sum(PH), pPred=mean(predProb), count = n())
+hlDf <- mutate(hlDf, se.fit=sqrt(pPred * (1-(pPred)/count)))
+ggplot(hlDf,aes(x=pPred,y=y/count,ymin=y/count-2*se.fit,ymax=y/count+2*se.fit)) +
+    geom_point()+geom_linerange(color=grey(0.75))+geom_abline(intercept=0,slope=1) +
+    xlab("Predicted Probability") +
+    ylab("Observed Proportion")
+```
+
 
 # Conclusions
 

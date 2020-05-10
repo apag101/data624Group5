@@ -112,6 +112,8 @@ cat_sum <- summary(Filter(is.factor, stData))
 kab_tab2(cat_sum, cap="Summary of categorical variable, Brand.Code")
 ```
 
+\pagebreak
+
 ## Distributions
 
 Our predictors have a wide range of distributions with some normal, some skewed, some bi-modal, and some with high zero inflation.  Standardization and normalization were used for model building, the specifics of which will be described for each model in the "Models" section of the report below.  Our target, `PH`, has a mostly normal distribution.
@@ -143,6 +145,8 @@ stData %>%
   theme(panel.background = element_blank(), legend.position="top")
 ```
 
+\pagebreak
+
 ## Missing Values
 
 There was some missing data in our predictors most noticeably in `MFR`, which had 8.25% missing values as can be seen in the plot below.  There doesn't seem to be any pattern in the missingness however, so it is unlikely that it has any predictive value.  
@@ -166,6 +170,8 @@ gg_miss_upset(stData,
 
 cstData <- subset(stData[-2], complete.cases(stData))
 ```
+
+\pagebreak
 
 ## Relationships Between Variables
 
@@ -255,6 +261,8 @@ cstData3 <- subset(cstData2, select = -c(Filler.Speed, Alch.Rel, Hyd.Pressure2, 
 ```
 
 So in the end we still removed 7 variables but not all the same ones recommended by the `findCorrelation` function.  Only 2 of the variables recommended by the function matched our list, `Hyd.Pressure2` and  `Filler.Level`.
+
+\pagebreak
 
 # Models
 
@@ -357,13 +365,15 @@ options(digits = 3)
 kab_tab2(df, cap="MODELS")
 ```
 
+\pagebreak
+
 ## Random Forest Model
 
 The random forest model was selected for further tuning based on the lowest RMSE and MAE statistics.  Although it also had the highest $R^2$ value that statistic should only be used to compare performance between variously tuned models of the same type, not between models of different types, so it's relevance is not significant in this case.  
 
 #### Top Ten Variables in the Initial Random Forest Model by Importance Score
 
-```{r}
+```{r fig.height=7, fig.width=9}
 
 #Variable Importance Ranking (Random Forest)
 rfImp <- varImp(rforest, scale = FALSE)
@@ -466,6 +476,8 @@ One interesting finding from this experiment was that we were able to determine 
 summary(linreg4) # Adjusted R-squared:  0.329
 ```
 
+\pagebreak
+
 ## `Mnf.Flow` Analysis
 
 According to the random forest and linear regression (with scaled data) models, the variable which accounts for the highest proportion of model variance is the `Mnf.Flow` (minimum night flow?) measure.
@@ -528,6 +540,8 @@ g+geom_violin(alpha=0.5, color='grey') +
 ```
 
 As such, the greatest predictor of beverage pH is whether Mnf.Flow has a negative value. The quantity itself is not likely to be useful as a model input as the negative value likely references an entirely different production process. 
+
+\pagebreak
 
 ## Modeling by Brand
 
@@ -665,18 +679,33 @@ plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
 
 ```
 
+\pagebreak
 
 # Predictions
 
-See the accompanying Excel file, "predicted_eval_values_PH.csv" for predictions of pH made by applying our Random Forest model to new data. 
+The goodness of fit plot below shows that our predictors fall close to the fit line. See the accompanying Excel file, "predicted_eval_values_PH.csv" for predictions of pH made by applying our Random Forest model to new data. 
 
 ```{r}
 
 eval_p2 <- predict(rf.model2, newdata = stEval[-2]) # -2 to remove Brand.Code categorical variable
 
+PHMut <- mutate(stEval, predProb = predict(rf.model2 ,stEval,type = "response"))
+grpPH <- group_by(PHMut, cut(eval_p2, breaks = unique(quantile(eval_p2, (0:25)/26, na.rm=TRUE))))
+
+#hosmer-lemeshow stat
+hlDf <- summarise(grpPH, y= sum(PH), pPred=mean(predProb), count = n())
+hlDf <- mutate(hlDf, se.fit=sqrt(pPred * (1-(pPred)/count)))
+ggplot(hlDf,aes(x=pPred,y=y/count,ymin=y/count-2*se.fit,ymax=y/count+2*se.fit)) +
+    geom_point()+geom_linerange(color=grey(0.75))+geom_abline(intercept=0,slope=1) +
+    xlab("Predicted Probability") +
+    ylab("Observed Proportion")
+
+
 write.csv(eval_p2,"predicted_eval_values_PH.csv")
 save.image(file = "Data624_Project2.RData")
 ```
+
+\pagebreak
 
 # Conclusions
 
@@ -696,6 +725,7 @@ save.image(file = "Data624_Project2.RData")
 
 Since we had success in strengthening `Mnf.Flow`'s predictive value by transforming it into a categorical variable, we may want to investigate using the same transformation on some of the other variables with multi-modal distributions.  Some of the variables with multi-modal distributions include: `Alch.Rel`, `Balling`, `Balling.Lvl`, `Carb.Flow`, `Carb.Rel`, `Density` and all three `Hyd.Pressure` variables.  In addition, rather than transforming these variables, we may want to investigate using piecewise linear or MARS models with finer tuning in order to preserve the distributions in each bin.
 
+\pagebreak
 
 # Appendix
 
