@@ -87,7 +87,7 @@ stDatao<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/mast
 
 ```{r}
 # move PH to the first column of the dataframe
-stData <- stDatao[,c(26,1:25,27:33)]
+stData <- stData[,c(26,1:25,27:33)]
 stEval <- stEval[,c(26,1:25,27:33)]
 ```
 
