@@ -373,7 +373,7 @@ The random forest model was selected for further tuning based on the lowest RMSE
 
 #### Top Ten Variables in the Initial Random Forest Model by Importance Score
 
-```{r fig.height=7, fig.width=9}
+```{r fig.height=5, fig.width=7}
 
 #Variable Importance Ranking (Random Forest)
 rfImp <- varImp(rforest, scale = FALSE)
@@ -704,8 +704,6 @@ ggplot(hlDf,aes(x=pPred,y=y/count,ymin=y/count-2*se.fit,ymax=y/count+2*se.fit)) 
 write.csv(eval_p2,"predicted_eval_values_PH.csv")
 save.image(file = "Data624_Project2.RData")
 ```
-
-\pagebreak
 
 # Conclusions
 
