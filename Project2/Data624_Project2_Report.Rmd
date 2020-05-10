@@ -127,19 +127,25 @@ knitr::include_graphics("images/Violinplot.png")
 
 ## Most Important Variable by Brand (1)
 
-We further separate the data by brands, 
-[provide table with relative frequencies of each brand]
+We further separate the data by brands. 
 
-We list the top-five most important variables according to brand type:
-A:
-B:
-C:
-D:
-NA: 
+```{r}
+knitr::include_graphics(c("images/BrandFreq.png","images/Brands.png"))
+```
+
+
+We list the top-five most important variables according to brand type
+
+```{r, echo=FALSE, out.width = '50%'}
+knitr::include_graphics(c("images/BrandA.png","images/BrandB.png","images/BrandA.png","images/BrandB.png"))
+```
+
 
 ## Most Important Variable by Brand (2)
 
 We notice the following consistencies and discrepancies between the brand-specific models and the general model:
+
+
 
 ## Predictions
 

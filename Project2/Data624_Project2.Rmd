@@ -420,9 +420,10 @@ __note the negative coefficients of Mnf.Flow, Usage.conf, Temperature; positive 
 
 
 ```{r}
-#Visualing the Mnf.Flow column 
+#Visualing the Mnf.Flow column
 plot(stData$Mnf.Flow, stData$PH)
 hist(stData$Mnf.Flow)
+
 ```
 
 
@@ -479,10 +480,10 @@ g+geom_violin(alpha=0.5, color='grey') +
 
 ```{r}
 #Subsetting data by brand
-brandA <- stData[stData$Brand.Code == 'A',]
-brandB <- stData[stData$Brand.Code == 'B',]
-brandC <- stData[stData$Brand.Code == 'C',]
-brandD <- stData[stData$Brand.Code == 'D',]
+brandA <- stDatao[stDatao$Brand.Code == 'A',]
+brandB <- stDatao[stDatao$Brand.Code == 'B',]
+brandC <- stDatao[stDatao$Brand.Code == 'C',]
+brandD <- stDatao[stDatao$Brand.Code == 'D',]
 ```
 
 ```{r}
@@ -551,6 +552,8 @@ rforestD <- caret::train(PH~., data=traindataD, method="cforest",
 forPredD <- predict(rforestD, newdata = testdataD)
 l4<-data.frame(postResample(pred = forPredD, obs = testdataD$PH))
 
+kab_tab(table(stDatao$Brand.Code), cap="Brand Frequency")
+
 df<-data.frame()
 df<-rbind(l1[,1],l2[,1],l3[,1],l4[,1])
 rownames(df)<-c("A","B","C","D")
@@ -560,10 +563,26 @@ kab_tab(df, cap="BRANDS")
 
 
 ```{r}
+
 #Variable Importance Ranking (on Brand A)
 rfImpA <- varImp(rforestA, scale = FALSE)
-plot(rfImpA, top=15, scales = list(y = list(cex = 0.8)))
+plot(rfImpA, top=5, scales = list(y = list(cex = 0.8)))
+
+#Variable Importance Ranking (on Brand B)
+rfImpB <- varImp(rforestB, scale = FALSE)
+plot(rfImpB, top=5, scales = list(y = list(cex = 0.8)))
+
+#Variable Importance Ranking (on Brand C)
+rfImpC <- varImp(rforestC, scale = FALSE)
+plot(rfImpC, top=5, scales = list(y = list(cex = 0.8)))
+
+#Variable Importance Ranking (on Brand D)
+rfImpD <- varImp(rforestD, scale = FALSE)
+plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
+
+
 ```
+
 
 ```{r}
 
