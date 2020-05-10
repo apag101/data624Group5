@@ -3,6 +3,12 @@ title: "Data 624 Project 2"
 author: "Zach Herold, Anthony Pagan, Betsy Rosalen"
 date: "5/10/2020"
 output: 
+    pdf_document:
+        df_print: kable
+        fig_caption: yes
+        fig_width: 7
+        fig_height: 7
+        highlight: tango
     html_document:
         df_print: kable
         fig_caption: yes
@@ -23,7 +29,6 @@ options(scipen=999, digits = 2)
 
 library(AppliedPredictiveModeling)
 library(caret)
-library(dplyr)
 library(e1071)
 library(earth)
 library(faraway)
@@ -43,7 +48,7 @@ library(psych)
 library(readxl)
 library(reshape)
 library(reshape2)
-library(tidyr)
+library(tidyverse)
 library(tseries)
 library(urca)
 library(ZIM)
@@ -59,7 +64,8 @@ kab_tab2 <- function(df, cap){
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
                 full_width = F)
 }
-# kab_tab_pdf <- function(df, cap){
+# For pdf output
+# kab_tab <- function(df, cap){
 #     kable(df, caption=cap, "latex", booktabs = T) %>%
 #         kable_styling(latex_options = c("striped", "HOLD_position", "scale_down"))
 # }
@@ -181,27 +187,67 @@ corrplot(cor.plt, method="color", col=col(200),
 kab_tab(names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)], 
         cap = "Variables recommended for removal by caret::findCorrelation function at the 0.85 cutoff")
 
-sb<-names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)]
-
-cstData<-cstData[, -which(names(cstData) %in% c(sb))]
-
-
+# sb<-names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)]
+# cstData<-cstData[, -which(names(cstData) %in% c(sb))]
 ```
+
+Before we removed any variables we decided to do our own analysis of the highly correlated variables to see if we came up with the same conclusions as the `findCorrelation` function. First we found all pairs of variables that had a 0.85 correlation or more, which was 13 pairs.  Then we found the frequency of each variable that was a member of one or more of these pairs.  The results can been seen in the two tables below.
 
 ```{r}
 #Displaying highly correlated pairs
 cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
-cor.plt[lower.tri(cor.plt,diag=TRUE)]=NA  #Prepare to drop duplicates and meaningless information
-cor.plt=as.data.frame(as.table(cor.plt))  #Turn into a 3-column table
-cor.plt=na.omit(cor.plt)  #Get rid of the junk we flagged above
-cor.plt=subset(cor.plt, abs(cor.plt$Freq)>0.8)
-cor.plt=cor.plt[order(-abs(cor.plt$Freq)),]    #Sort by highest correlation (whether +ve or -ve)
-cor.plt
+cor.plt[lower.tri(cor.plt,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
+cor.plt <- as.data.frame(as.table(cor.plt)) #Turn into a 3-column table
+cor.plt <- na.omit(cor.plt) #Get rid of the junk (NA's) we flagged above
+cor.plt <- subset(cor.plt, abs(cor.plt$Freq)>0.85)
+cor.plt <- cor.plt[order(-abs(cor.plt$Freq)),] #Sort by highest correlation (whether +ve or -ve)
+rownames(cor.plt) <- c()
+names(cor.plt)[3] <- "Correlation"
+kab_tab(cor.plt, cap="Highly Correlated Variable Pairs")
 ```
+
+```{r}
+vars <- c(as.character(cor.plt$Var1), as.character(cor.plt$Var2))
+vars <- as.data.frame(table(vars))
+vars <- vars[order(-vars$Freq),]
+rownames(vars) <- c()
+kab_tab(vars, cap="Frequency of Variables Involved in Highly Correlated Pairs")
+```
+
+What we found is that there were exactly 5 variables that were most frequently associated with highly correlated pairs.  Each of these variables, `Alch.Rel`, `Balling`, `Balling.Lvl`, `Carb.Rel`, `Density` was involved in 4 pairs.  None of the other variables were involved in more than one pair.  By removing `Balling.Lvl`, we could eliminate 4 of our highly correlated pairs, by removing `Density` we got rid of 3 more, and with `Balling` 2 more. so we were left with only the following 4 pairs of highly correlated variables.  
+
+```{r}
+cstData <- subset(cstData, select = -c(Balling.Lvl, Density, Balling))
+cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
+cor.plt[lower.tri(cor.plt,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
+cor.plt <- as.data.frame(as.table(cor.plt)) #Turn into a 3-column table
+cor.plt <- na.omit(cor.plt) #Get rid of the junk (NA's) we flagged above
+cor.plt <- subset(cor.plt, abs(cor.plt$Freq)>0.85)
+cor.plt <- cor.plt[order(-abs(cor.plt$Freq)),] #Sort by highest correlation (whether +ve or -ve)
+rownames(cor.plt) <- c()
+names(cor.plt)[3] <- "Correlation"
+kab_tab(cor.plt, cap="Highly Correlated Variable Pairs")
+```
+
+Each of the variables in these pairs only appears once so we needed to get rid of one variable from each pair in order to eliminate all pairs of variables with a 0.85 correlation or more.  So we decide to remove the 4 with the lowest correlation to `PH` without removing two from the same pair.  This eliminated `Filler.Speed`, `Alch.Rel`, `Hyd.Pressure2` and `Filler.Level`.  
+
+```{r}
+temp <- subset(cstData, 
+               select = c(Alch.Rel, Bowl.Setpoint, Carb.Rel,	Filler.Level,
+                          Filler.Speed, Hyd.Pressure2, Hyd.Pressure3,	MFR, PH))
+temp <- (cor(temp, use = "pairwise.complete.obs", method = "pearson")[1:8,9])
+sort(abs(temp))
+```
+
+```{r}
+cstData <- subset(cstData, select = -c(Filler.Speed, Alch.Rel, Hyd.Pressure2, Filler.Level))
+```
+
+So in the end we still removed 7 variables but not all the same ones recommended by the `findCorrelation` function.  Only 2 of the variables recommended by the function matched our list, `Hyd.Pressure2` and  `Filler.Level`.
 
 # Models
 
-We randomly partitioned our dataset into training and validation subsets with 70% for training and 30% set aside for testing.
+Next we partitioned our dataset into training and validation subsets by randomly selecting 70% for training and leaving the remaining 30% set aside for testing.
 
 ```{r}
 #Partition Data
@@ -211,9 +257,12 @@ traindata<-cstData[trainidx,]
 testdata<-cstData[-trainidx,]
 ```
 
+We then tuned a full range of model types including: Linear Regression, Ridge Regression, Lasso, Random Forest, Tree Bag, CTree, Classification and Regression Tree (CART), Multivariate Adaptive Regression Splines (MARS), K-Nearest Neighbors (KNN) and Support Vector Machine (SVM) using repeated cross-validation on all models.  The RMSE, $R^2$, and MAE statistics for each of these models are presented in the table below, ordered by the lowest RMSE to highest and thus best predictive performance to worst.
+
 ```{r cache=TRUE}
 require(caret)
-trctrl<- trainControl(method="repeatedcv", number=3,repeats=2)
+set.seed(123)
+trctrl<- trainControl(method="repeatedcv", number=3, repeats=2)
 
 ##Linear Regression
 linreg <- caret::train(PH~., data=traindata, method="lm", 
@@ -285,13 +334,16 @@ svmFit <- caret::train(PH~., data = traindata,
 svmPred <- predict(svmFit, newdata = testdata)
 m10<-data.frame(postResample(pred = svmPred, obs = testdata$PH)) #0.13136218 0.48751241
 
-df<-data.frame()
-df<-rbind(m1[,1],m2[,1],m3[,1],m4[,1],m5[,1],m6[,1],m7[,1],m8[,1],m9[,1],m10[,1])
-rownames(df)<-c("linePred","ridgePred","lassoPred","forPred","bagPred","ctrePred","cartPred","marsPred","knnPred","svmPred")
+df<-data.frame(rbind(m1[,1],m2[,1],m3[,1],m4[,1],m5[,1],m6[,1],m7[,1],
+                     m8[,1],m9[,1],m10[,1]))
+rownames(df)<-c("Linear Regression","Ridge Regression","Lasso","Random Forest",
+                "Tree Bag","CTree","CART","MARS","KNN","SVM")
 colnames(df)<-c("RMSE","Rsquared","MAE")
+df <- df[order(df$RMSE),]
 kab_tab(df, cap="MODELS")
 ```
 
+The random forest model was selected for our predictions based on the lowest RMSE and MAE statistics.  Although it also had the highest $R^2$ value that statistic should only be used to compare performance between variously tuned models of the same type, not between models of different types, so it's relevance is not significant in this case.  
 
 ```{r}
 #Variable Importance Ranking (Random Forest)
@@ -300,17 +352,14 @@ bookTheme()
 plot(rfImp, top=15, scales = list(y = list(cex = 0.8)))
 ```
 
+### Top Five Variables by Importance Score
+
 ```{r}
-rfImp
+options(digits = 5)
+rfImp2 <- rfImp$importance[order(-rfImp$importance$Overall), , drop=FALSE]
+kab_tab2(head(rfImp2, 5), cap="Variable Importance Scores")
+options(digits = 2)
 ```
-
-### Top Five Most Important 
-Mnf.Flow	0.0186774450			
-Alch.Rel	0.0063442447			
-Usage.cont	0.0032824948			
-Pressure.Vacuum	0.0017275495			
-Temperature	0.0016837020	
-
 
 ```{r}
 #install.packages('rpart.plot')
