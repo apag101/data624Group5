@@ -408,11 +408,11 @@ linreg2 <- caret::train(PH~., data=traindata, method="lm",  trControl=trctrl)
 summary(linreg2) #Adjusted R-squared:  0.356
 
 ##Linear Regression using only top 10 variables 
-linreg3 <- caret::train(PH~Mnf.Flow+Usage.cont+Alch.Rel+Bowl.Setpoint+Pressure.Vacuum+Temperature+Oxygen.Filler+Hyd.Pressure3+Carb.Pressure1+Hyd.Pressure1, data=traindata, method="lm",  trControl=trctrl)
+linreg3 <- caret::train(PH~Mnf.Flow+Usage.cont+Bowl.Setpoint+Pressure.Vacuum+Temperature+Oxygen.Filler+Hyd.Pressure3+Carb.Pressure1+Hyd.Pressure1, data=traindata, method="lm",  trControl=trctrl)
 summary(linreg3) # Adjusted R-squared:  0.328 
 
 ##Linear Regression using only top 8 variables (Removing Pressure.Vacuum and Hyd.Pressure1)
-linreg4 <- caret::train(PH~Mnf.Flow+Usage.cont+Alch.Rel+Bowl.Setpoint+Temperature+Oxygen.Filler+Hyd.Pressure3+Carb.Pressure1, data=traindata, method="lm", trControl=trctrl)
+linreg4 <- caret::train(PH~Mnf.Flow+Usage.cont+Bowl.Setpoint+Temperature+Oxygen.Filler+Hyd.Pressure3+Carb.Pressure1, data=traindata, method="lm", trControl=trctrl)
 summary(linreg4) # Adjusted R-squared:  0.329  
 ```
 
