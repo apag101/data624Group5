@@ -430,10 +430,10 @@ g+geom_violin(alpha=0.5, color='grey') +
 
 ```{r}
 #Subsetting data by brand
-brandA <- stData[stData$Brand.Code == 'A',]
-brandB <- stData[stData$Brand.Code == 'B',]
-brandC <- stData[stData$Brand.Code == 'C',]
-brandD <- stData[stData$Brand.Code == 'D',]
+brandA <- stDatao[stDatao$Brand.Code == 'A',]
+brandB <- stDatao[stDatao$Brand.Code == 'B',]
+brandC <- stDatao[stDatao$Brand.Code == 'C',]
+brandD <- stDatao[stDatao$Brand.Code == 'D',]
 ```
 
 ```{r}
@@ -517,6 +517,7 @@ kab_tab(df, cap="BRANDS")
 rfImpA <- varImp(rforestA, scale = FALSE)
 plot(rfImpA, top=15, scales = list(y = list(cex = 0.8)))
 ```
+
 
 ```{r}
 
