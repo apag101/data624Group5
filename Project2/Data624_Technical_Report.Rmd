@@ -140,11 +140,6 @@ stData %>%
   theme(panel.background = element_blank(), legend.position="top")
 ```
 
-```{r eval=FALSE}
-
-stData <- stData[-2]
-```
-
 ## Missing Values
 
 There was some missing data in our predictors most noticeably in `MFR`, which had 8.25% missing values as can be seen in the plot below.  There doesn't seem to be any pattern in the missingness however, so it is unlikely that it has any predictive value.  
@@ -418,10 +413,10 @@ testdata2<-cstData_all[-trainidx2,]
 #rf.model2 <- randomForest(PH~., data=traindata2, na.action=na.roughfix)
 rf.model2 <- randomForest(PH~., data=traindata2, na.action=na.roughfix, importance=TRUE) 
 rfPred2 <- predict(rf.model2, newdata = testdata2)
-m10 <- data.frame(postResample(pred = rfPred2, obs = testdata2$PH)) #0.1097018 0.6173039
-m10 <- t(m10)
-row.names(m10) <- c("Random Forest Model All Predictors")
-kab_tab2(m10, "Accuracy Measures for Random Forest Model using Full Set of Predictors")
+m11 <- data.frame(postResample(pred = rfPred2, obs = testdata2$PH)) #0.1097018 0.6173039
+m11 <- t(m11)
+row.names(m11) <- c("Random Forest Model All Predictors")
+kab_tab2(m11, "Accuracy Measures for Random Forest Model using Full Set of Predictors")
 ```
 
 #### Top 10 Variables in the Random Forest Model using all Predictors by Importance Score
@@ -440,11 +435,11 @@ Three more linear models were tested using the top predictors from our random fo
 ```{r}
 
 #Comparing Adj. Rsquared for OLS Linear Regression models, inputting the top-ten most important variables from Random Forest
-##Linear Regression using all variables (Mnf.Flow_ord instead of Mnf.Flow)
+##Linear Regression using all variables 
 linreg2 <- caret::train(PH~., data=traindata, method="lm",  trControl=trctrl)
 # summary(linreg2) #Adjusted R-squared:  0.356
 linPred2 <- predict(linreg2, newdata = testdata)
-m11<-data.frame(postResample(pred = linPred2, obs = testdata$PH)) #0.1414880 0.3775156
+m12<-data.frame(postResample(pred = linPred2, obs = testdata$PH)) #0.1414880 0.3775156
 
 ##Linear Regression using only top 10 variables 
 linreg3 <- caret::train(PH ~ Mnf.Flow + Usage.cont + Carb.Rel + Bowl.Setpoint + 
@@ -453,7 +448,7 @@ linreg3 <- caret::train(PH ~ Mnf.Flow + Usage.cont + Carb.Rel + Bowl.Setpoint +
                         data=traindata, method="lm",  trControl=trctrl)
 # summary(linreg3) # Adjusted R-squared:  0.328 
 linPred3 <- predict(linreg3, newdata = testdata)
-m12<-data.frame(postResample(pred = linPred3, obs = testdata$PH)) #0.1414880 0.3775156
+m13<-data.frame(postResample(pred = linPred3, obs = testdata$PH)) #0.1414880 0.3775156
 
 ##Linear Regression using only top 8 variables (Removing Pressure.Vacuum	 + Air.Pressurer)
 linreg4 <- caret::train(PH ~ Mnf.Flow + Usage.cont + Carb.Rel + Bowl.Setpoint + 
@@ -462,10 +457,10 @@ linreg4 <- caret::train(PH ~ Mnf.Flow + Usage.cont + Carb.Rel + Bowl.Setpoint +
                         data=traindata, method="lm", trControl=trctrl)
 # summary(linreg4) # Adjusted R-squared:  0.329
 linPred4 <- predict(linreg4, newdata = testdata)
-m13<-data.frame(postResample(pred = linPred4, obs = testdata$PH)) #0.1414880 0.3775156
+m14<-data.frame(postResample(pred = linPred4, obs = testdata$PH)) #0.1414880 0.3775156
 
 
-df<-data.frame(rbind(m11[,1],m12[,1],m13[,1]))
+df<-data.frame(rbind(m12[,1],m13[,1],m14[,1]))
 rownames(df)<-c("Linear Regression 2","Linear Regression 3","Linear Regression 4")
 colnames(df)<-c("RMSE","Rsquared","MAE")
 df <- df[order(df$RMSE),]
@@ -524,21 +519,21 @@ nearzeros.Mnf.Flow.count / nrow(stData) #.03150 3% of the total number of rows a
 
 
 ```{r}
-
+stData2 <- stData
 #Separating the Mnf.Flow column by thresholds
-stData$Mnf.Flow_ord <- cut(
-  stData$Mnf.Flow,
+stData2$Mnf.Flow_ord <- cut(
+  stData2$Mnf.Flow,
   breaks = c(-Inf, -1, 1, 140, Inf),
   labels = c(1, 2, 3, 4),
   right  = FALSE
 )
-table(stData$Mnf.Flow_ord)
+table(stData2$Mnf.Flow_ord)
 ```
 
 ```{r fig.height=4, fig.width=7}
 
 #Violin plot of Mnf.Flow by bins
-g <-ggplot(stData, aes(x=factor(stData$Mnf.Flow_ord), y=stData$PH))
+g <-ggplot(stData2, aes(x=factor(stData2$Mnf.Flow_ord), y=stData2$PH))
 g+geom_violin(alpha=0.5, color='grey') +
   geom_jitter(alpha=0.5, size=4, aes(), position = position_jitter(width = 0.1), color='darkblue', show.legend=FALSE) +
   ggtitle("PH by Mnf.Flow classification") +
@@ -688,9 +683,11 @@ plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
 
 ```{r}
 
-eval_p<-predict(rforest, stEval, type = "raw")
+# eval_p <- predict(rforest, stEval, type = "raw")
+eval_p2 <- predict(rf.model2, newdata = stEval[-2]) # -2 to remove Brand.Code categorical variable
+
 # summary(eval_p)
-write.csv(eval_p,"predicted_eval_values_PH.csv")
+write.csv(eval_p2,"predicted_eval_values_PH.csv")
 
 save.image(file = "Data624_Project2.RData")
 ```

@@ -85,27 +85,13 @@ The data science team at ABC Beverage has been asked to provide an analysis of o
 We were given a dataset that consisted of 31 numerical predictor variables detailing a wide range of production processes, 1 categorical variable `Brand.Code`, and our target variable, `PH`.  Summary statistics for these variables can be seen in the two tables below.
 
 ```{r}
-
-#Import Data
-stEval<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentEvaluation.csv?token=AB3M6K7RXH65YIAKWZBQ6KK6XA7R2", header = TRUE)
-stDatao<- read.csv("https://raw.githubusercontent.com/apag101/data624Group5/master/Project2/StudentData.csv?token=AB3M6K4AYHCT5HBFJYHCCSC6XBACQ", header = TRUE)
+load("Data624_Project2.Rdata")
 ```
 
 ```{r}
 
-# move PH to the first column of the dataframe
-stData <- stDatao[,c(26,1:25,27:33)]
-stEval <- stEval[,c(26,1:25,27:33)]
-```
-
-```{r}
-
-# https://stackoverflow.com/questions/5863097/selecting-only-numeric-columns-from-a-data-frame
-
-num_sum <- describe(Filter(is.numeric, stData))
 kab_tab(num_sum[,c(2,3,4,8,5,9,10:13)], cap="Summary statistics for numerical variables")
 
-cat_sum <- summary(Filter(is.factor, stData))
 kab_tab2(cat_sum, cap="Summary of categorical variable, Brand.Code")
 ```
 
@@ -140,10 +126,6 @@ stData %>%
   theme(panel.background = element_blank(), legend.position="top")
 ```
 
-```{r eval=FALSE}
-
-stData <- stData[-2]
-```
 
 ## Missing Values
 
@@ -159,21 +141,11 @@ The plot below confirms that there is no apparent pattern in the missing values.
 
 ```{r fig.height=6, fig.width=7}
 
-gg_miss_upset(stData,
+gg_miss_upset(stData[-2],
               nsets = 12,
               nintersects = 18)
 ```
 
-```{r eval=FALSE}
-
-summary(complete.cases(stData))
-```
-
-
-```{r}
-
-cstData <- subset(stData[-2], complete.cases(stData))
-```
 
 ## Relationships Between Variables
 
@@ -182,7 +154,7 @@ The plots below were used to assess if there were any clear linear relationships
 ```{r fig.height=7, fig.width=9}
 
 #plot checks
-featurePlot(cstData[-1],cstData$PH)
+featurePlot(stData[-c(1:2)],stData$PH)
 ```
 
 A correlation plot shows some strong correlations between predictors.  The `findCorrelation` function from the `caret` library recommends removing the `MFR`, `Hyd.Pressure2`, `Carb.Rel`, `Air.Pressurer`, `Carb.Flow`, `Hyd.Pressure4`, and `Filler.Level` variables at a 0.85 correlation cutoff.  Upping the cutoff to 0.9 only removes one variable, `Carb.Flow`, from that list.  
@@ -191,7 +163,7 @@ A correlation plot shows some strong correlations between predictors.  The `find
 
 #Correlation Matrix
 library(corrplot)
-cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
+cor.plt <- cor(stData[-c(1:2)], use = "pairwise.complete.obs", method = "pearson")
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
 corrplot(cor.plt, method="color", col=col(200),  
          type="upper", order="hclust",
@@ -202,11 +174,9 @@ corrplot(cor.plt, method="color", col=col(200),
 
 ```{r}
 
-kab_tab2(names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)], 
+kab_tab2(names(stData[-2])[findCorrelation(cor(stData[-c(1:2)]), cutoff = .85)], 
         cap = "Variables recommended for removal by caret::findCorrelation function at the 0.85 cutoff")
 
-# sb<-names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)]
-# cstData<-cstData[, -which(names(cstData) %in% c(sb))]
 ```
 
 Before we removed any variables we decided to do our own analysis of the highly correlated variables to see if we came up with the same conclusions as the `findCorrelation` function. First we found all pairs of variables that had a 0.85 correlation or more, which was 13 pairs.  Then we found the frequency of each variable that was a member of one or more of these pairs.  The results can been seen in the two tables below.
@@ -214,7 +184,7 @@ Before we removed any variables we decided to do our own analysis of the highly 
 ```{r}
 
 #Displaying highly correlated pairs
-cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
+cor.plt <- cor(stData[-c(1:2)], use = "pairwise.complete.obs", method = "pearson")
 cor.plt[lower.tri(cor.plt,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
 cor.plt <- as.data.frame(as.table(cor.plt)) #Turn into a 3-column table
 cor.plt <- na.omit(cor.plt) #Get rid of the junk (NA's) we flagged above
@@ -226,7 +196,6 @@ kab_tab2(cor.plt, cap="Highly Correlated Variable Pairs")
 ```
 
 ```{r}
-
 vars <- c(as.character(cor.plt$Var1), as.character(cor.plt$Var2))
 vars <- as.data.frame(table(vars))
 vars <- vars[order(-vars$Freq),]
@@ -237,8 +206,6 @@ kab_tab2(vars, cap="Frequency of Variables Involved in Highly Correlated Pairs")
 What we found is that there were exactly 5 variables that were most frequently associated with highly correlated pairs.  Each of these variables, `Alch.Rel`, `Balling`, `Balling.Lvl`, `Carb.Rel`, `Density` was involved in 4 pairs.  None of the other variables were involved in more than one pair.  By removing `Balling.Lvl`, we could eliminate 4 of our highly correlated pairs, by removing `Density` we got rid of 3 more, and with `Balling` 2 more. so we were left with only the following 4 pairs of highly correlated variables.  
 
 ```{r}
-
-cstData <- subset(cstData, select = -c(Balling.Lvl, Density, Balling))
 cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
 cor.plt[lower.tri(cor.plt,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
 cor.plt <- as.data.frame(as.table(cor.plt)) #Turn into a 3-column table
@@ -261,104 +228,15 @@ temp <- (cor(temp, use = "pairwise.complete.obs", method = "pearson")[1:8,9])
 # sort(abs(temp))
 ```
 
-```{r}
-
-cstData <- subset(cstData, select = -c(Filler.Speed, Alch.Rel, Hyd.Pressure2, Filler.Level))
-```
-
 So in the end we still removed 7 variables but not all the same ones recommended by the `findCorrelation` function.  Only 2 of the variables recommended by the function matched our list, `Hyd.Pressure2` and  `Filler.Level`.
 
 # Models
 
 Next we partitioned our dataset into training and validation subsets by randomly selecting 70% for training and leaving the remaining 30% set aside for testing.
 
-```{r}
-
-#Partition Data
-set.seed(123)
-trainidx<-sample(nrow(cstData),round(0.7*nrow(cstData)),replace=F)
-traindata<-cstData[trainidx,]
-testdata<-cstData[-trainidx,]
-```
-
 We then tuned a full range of model types including: Linear Regression, Ridge Regression, Lasso, Random Forest, Tree Bag, CTree, Classification and Regression Tree (CART), Multivariate Adaptive Regression Splines (MARS), K-Nearest Neighbors (KNN) and Support Vector Machine (SVM) using repeated cross-validation on all models.  The RMSE, $R^2$, and MAE statistics for each of these models are presented in the table below, ordered by the lowest RMSE to highest and thus best predictive performance to worst.
 
 ```{r cache=TRUE}
-
-require(caret)
-set.seed(555)
-trctrl<- trainControl(method="repeatedcv", number=3, repeats=2)
-
-##Linear Regression
-linreg <- caret::train(PH~., data=traindata, method="lm", 
-                trControl=trctrl)
-linPred <- predict(linreg, newdata = testdata)
-m1<-data.frame(postResample(pred = linPred, obs = testdata$PH)) #0.1414880 0.3775156
-
-##Ridge Regression
-ridge <- caret::train(PH~., data=traindata, method="ridge", 
-                trControl=trctrl)
-ridgePred <- predict(ridge, newdata = testdata)
-m2<-data.frame(postResample(pred = ridgePred, obs = testdata$PH)) #0.1414837 0.3775762
-
-##Lasso Regression
-lasso <- caret::train(PH~., data=traindata, method="lasso", 
-                trControl=trctrl)
-lassoPred <- predict(lasso, newdata = testdata)
-m3<-data.frame(postResample(pred = lassoPred, obs = testdata$PH)) #0.1418941 0.3762947
-
-##RandomForest (Processed)
-rforest <- caret::train(PH~., data=traindata, method="cforest", 
-                trControl=trctrl,
-                tuneLength =2)
-forPred <- predict(rforest, newdata = testdata)
-m4<-data.frame(postResample(pred = forPred, obs = testdata$PH)) #0.11550844 0.59451507
-
-##Tree Bag
-bag <- caret::train(PH~., data=traindata, method="treebag", 
-                trControl=trctrl,
-                tuneLength =2)
-bagPred <- predict(bag, newdata = testdata)
-m5<-data.frame(postResample(pred = bagPred, obs = testdata$PH)) #0.12790436 0.50718903
-
-##CTree
-ctre <- caret::train(PH~., data=traindata, method="ctree2", 
-                trControl=trctrl,
-                tuneLength =2)
-ctrePred <- predict(ctre, newdata = testdata)
-m6<-data.frame(postResample(pred = ctrePred, obs = testdata$PH)) #0.1519582 0.2804008
-
-##CART
-rcart<- caret::train(PH~., data=traindata, method="rpart",
-                trControl=trctrl,
-                tuneLength =2)
-cartPred <- predict(rcart, newdata = testdata)
-m7<-data.frame(postResample(pred = cartPred, obs = testdata$PH)) #0.1593219 0.2053639
-
-##MARS
-marsFit <- earth(PH~., data = traindata, degree=2, nprune=14)
-marsPred <- predict(marsFit, newdata = testdata)
-m8<-data.frame(postResample(pred = marsPred, obs = testdata$PH)) #0.1399919 0.3912855
-
-##KNN
-knnGrid <-  expand.grid(k = 1:20)
-knnFit <- caret::train(PH~., data = traindata, 
-                method = "knn",
-                trControl = trctrl, 
-                tuneGrid = knnGrid)
-knnPred <- predict(knnFit, newdata = testdata)
-m9<-data.frame(postResample(pred = knnPred, obs = testdata$PH)) #0.1278504 0.5088682
-
-##SVM (Radial Kernel)
-svmGrid <-  expand.grid(C = c(1,1000))
-svmFit <- caret::train(PH~., data = traindata, 
-                 #type='eps-regression',
-                 method = 'svmRadialCost', 
-                 trControl = trctrl, 
-                 tuneGrid = svmGrid)
-svmPred <- predict(svmFit, newdata = testdata)
-m10<-data.frame(postResample(pred = svmPred, obs = testdata$PH)) #0.13136218 0.48751241
-
 df<-data.frame(rbind(m1[,1],m2[,1],m3[,1],m4[,1],m5[,1],m6[,1],m7[,1],
                      m8[,1],m9[,1],m10[,1]))
 rownames(df)<-c("Linear Regression","Ridge Regression","Lasso","Random Forest",
@@ -376,27 +254,16 @@ The random forest model was selected for further tuning based on the lowest RMSE
 #### Top Ten Variables in the Initial Random Forest Model by Importance Score
 
 ```{r}
-
-#Variable Importance Ranking (Random Forest)
-rfImp <- varImp(rforest, scale = FALSE)
-bookTheme()
 plot(rfImp, top=15, scales = list(y = list(cex = 0.8)))
 ```
 
 ```{r}
-
-options(digits = 5)
-rfImp2 <- rfImp$importance[order(-rfImp$importance$Overall), , drop=FALSE]
 kab_tab2(head(rfImp2, 10), cap="Variable Importance Scores")
 ```
 
 For comparison we also plotted a tree diagram which gave us similar results with the top three predictors also taking the top 3 nodes in the tree.  
 
 ```{r fig.height=5, fig.width=7}
-
-#install.packages('rpart.plot')
-library(rpart.plot)
-tree <- rpart(PH~., data=traindata)
 prp(tree)
 ```
 
@@ -405,31 +272,12 @@ prp(tree)
 Since we had removed 7 predictors before tuning our models we decided to try re-tuning the best performing model, the random forest model, using the full set of predictors.  This resulted in a small improvement in performance on the validation set as measured by the RMSE and MAE as well as the improved $R^2$ value as shown in the table below.  
 
 ```{r}
-
-library(randomForest)
-#Using full dataset (applying na.roughfix to missing values)
-cstData_all<-subset(stData[-2])
-set.seed(123)
-trainidx2<-sample(nrow(cstData_all),round(0.7*nrow(cstData_all)),replace=F)
-traindata2<-cstData_all[trainidx2,]
-testdata2<-cstData_all[-trainidx2,]
-
-##Additional Random Forest tuning (TUNE HERE)
-#rf.model2 <- randomForest(PH~., data=traindata2, na.action=na.roughfix)
-rf.model2 <- randomForest(PH~., data=traindata2, na.action=na.roughfix, importance=TRUE) 
-rfPred2 <- predict(rf.model2, newdata = testdata2)
-m10 <- data.frame(postResample(pred = rfPred2, obs = testdata2$PH)) #0.1097018 0.6173039
-m10 <- t(m10)
-row.names(m10) <- c("Random Forest Model All Predictors")
-kab_tab2(m10, "Accuracy Measures for Random Forest Model using Full Set of Predictors")
+kab_tab2(m11, "Accuracy Measures for Random Forest Model using Full Set of Predictors")
 ```
 
 #### Top 10 Variables in the Random Forest Model using all Predictors by Importance Score
 
 ```{r}
-
-#with importance=TRUE, uses approach by Breiman to calculate the variable importance reported as MeanDecreaseAccuracy
-#https://stackoverflow.com/questions/37888619/difference-between-varimp-caret-and-importance-randomforest-for-random-fores
 rfImp2 <- as.data.frame(importance(rf.model2, scale = FALSE))
 options(digits = 5)
 kab_tab2(head(rfImp2[order(-rfImp2[,2]),], 10), cap="Variable Importance Scores")
@@ -439,33 +287,8 @@ Three more linear models were tested using the top predictors from our random fo
 
 ```{r}
 
-#Comparing Adj. Rsquared for OLS Linear Regression models, inputting the top-ten most important variables from Random Forest
-##Linear Regression using all variables (Mnf.Flow_ord instead of Mnf.Flow)
-linreg2 <- caret::train(PH~., data=traindata, method="lm",  trControl=trctrl)
-# summary(linreg2) #Adjusted R-squared:  0.356
-linPred2 <- predict(linreg2, newdata = testdata)
-m11<-data.frame(postResample(pred = linPred2, obs = testdata$PH)) #0.1414880 0.3775156
-
-##Linear Regression using only top 10 variables 
-linreg3 <- caret::train(PH ~ Mnf.Flow + Usage.cont + Carb.Rel + Bowl.Setpoint + 
-                          Temperature + Pressure.Vacuum	 + Air.Pressurer + 
-                          Oxygen.Filler + Pressure.Setpoint + Hyd.Pressure3, 
-                        data=traindata, method="lm",  trControl=trctrl)
-# summary(linreg3) # Adjusted R-squared:  0.328 
-linPred3 <- predict(linreg3, newdata = testdata)
-m12<-data.frame(postResample(pred = linPred3, obs = testdata$PH)) #0.1414880 0.3775156
-
-##Linear Regression using only top 8 variables (Removing Pressure.Vacuum	 + Air.Pressurer)
-linreg4 <- caret::train(PH ~ Mnf.Flow + Usage.cont + Carb.Rel + Bowl.Setpoint + 
-                          Temperature + 
-                          Oxygen.Filler + Pressure.Setpoint + Hyd.Pressure3, 
-                        data=traindata, method="lm", trControl=trctrl)
-# summary(linreg4) # Adjusted R-squared:  0.329
-linPred4 <- predict(linreg4, newdata = testdata)
-m13<-data.frame(postResample(pred = linPred4, obs = testdata$PH)) #0.1414880 0.3775156
-
-
-df<-data.frame(rbind(m11[,1],m12[,1],m13[,1]))
+#Comparing Adj. Rsquared for OLS Linear Regression models, inputting the top-ten most important 
+df<-data.frame(rbind(m12[,1],m13[,1],m14[,1]))
 rownames(df)<-c("Linear Regression 2","Linear Regression 3","Linear Regression 4")
 colnames(df)<-c("RMSE","Rsquared","MAE")
 df <- df[order(df$RMSE),]
@@ -492,53 +315,11 @@ hist(stData$Mnf.Flow)
 ```
 
 
-```{r}
-
-#Investigating percent of null values in ranged bins of Mnf.Flow 
-nrow(stData) #2571 rows
-sum(!complete.cases(stData)) #442 rows with missing data
-
-neg.Mnf.Flow.count <- nrow(stData[stData$Mnf.Flow < 0,]) #1186 rows with negative values
-neg.complete.Mnf.Flow.count <- sum(complete.cases(stData[stData$Mnf.Flow < 0,])) #989 complete cases
-neg.complete.Mnf.Flow.count / neg.Mnf.Flow.count #0.8338954
-
-nearzeros.Mnf.Flow.count <- nrow(stData[stData$Mnf.Flow >= 0 & stData$Mnf.Flow <= 1 ,]) #81 rows
-nearzeros.complete.Mnf.Flow.count <-sum(complete.cases(stData[stData$Mnf.Flow >= 0 & stData$Mnf.Flow <= 1 ,]))
-nearzeros.complete.Mnf.Flow.count / nearzeros.Mnf.Flow.count #0.01234568 1% of data complete
-
-pos.Mnf.Flow.count <- nrow(stData[stData$Mnf.Flow > 1,]) #1308 total rows with with Mnf.Flow greater than 50
-pos.complete.Mnf.Flow.count <- sum(complete.cases(stData[stData$Mnf.Flow > 1,])) #1140 complete cases with Mnf.Flow greater than 50
-pos.complete.Mnf.Flow.count / pos.Mnf.Flow.count #0.8707951 87% of data complete
-
-
-nearzeros.Mnf.Flow.count / nrow(stData) #.03150 3% of the total number of rows accounts for 18% of the missing values
-```
-
-
-```{r}
-
-#Finding the mean of the Mnf.FLow from subset of values greater than 1, used in binning
-#pos.Mnf.Flow <- stData[stData$Mnf.Flow > 1,]
-#mean(pos.Mnf.Flow$Mnf.Flow, na.rm = T)
-```
-
-
-```{r}
-
-#Separating the Mnf.Flow column by thresholds
-stData$Mnf.Flow_ord <- cut(
-  stData$Mnf.Flow,
-  breaks = c(-Inf, -1, 1, 140, Inf),
-  labels = c(1, 2, 3, 4),
-  right  = FALSE
-)
-table(stData$Mnf.Flow_ord)
-```
 
 ```{r fig.height=4, fig.width=7}
 
 #Violin plot of Mnf.Flow by bins
-g <-ggplot(stData, aes(x=factor(stData$Mnf.Flow_ord), y=stData$PH))
+g <-ggplot(stData2, aes(x=factor(stData2$Mnf.Flow_ord), y=stData2$PH))
 g+geom_violin(alpha=0.5, color='grey') +
   geom_jitter(alpha=0.5, size=4, aes(), position = position_jitter(width = 0.1), color='darkblue', show.legend=FALSE) +
   ggtitle("PH by Mnf.Flow classification") +
@@ -552,84 +333,6 @@ g+geom_violin(alpha=0.5, color='grey') +
 ## Modeling by Brand
 
 In another experiment we divided the dataset into subsets according to `Brand.Code` in order to assess what production processes are most relevant for each brand type.  We imputed missing values by replacing them with the trimmed mean and then applied a random forest model to each of the four sets.  Our aim was to determine if the variables found to be most important for the whole dataset carry through to the subsets. 
-
-
-```{r}
-
-#Subsetting data by brand
-brandA <- stDatao[stDatao$Brand.Code == 'A',]
-brandB <- stDatao[stDatao$Brand.Code == 'B',]
-brandC <- stDatao[stDatao$Brand.Code == 'C',]
-brandD <- stDatao[stDatao$Brand.Code == 'D',]
-```
-
-```{r}
-
-###Add Trimmed Means to NA Value
-r <- colnames(cstData_all)[ apply(cstData_all, 2, anyNA)]
-
-cstData_all[,colnames(cstData_all) %in% r]<-data.frame(sapply(cstData_all[,colnames(cstData_all) %in% r],
-      function(x) ifelse(is.na(x),
-            mean(x, na.rm = TRUE, trim = .1),
-            x)))
-```
-
-
-```{r}
-
-df<-data.frame()
-#BrandA Training/Test Splitting
-set.seed(123)
-trainidxA<-sample(nrow(brandA),round(0.7*nrow(brandA)),replace=F)
-traindataA<-cstData_all[trainidxA,]
-testdataA<-cstData_all[-trainidxA,]
-
-##RandomForest (on BrandA)
-trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
-rforestA <- caret::train(PH~., data=traindataA, method="cforest", 
-                trControl=trctrl, tuneLength =2, na.action=na.omit)
-forPredA <- predict(rforestA, newdata = testdataA)
-l1<-data.frame(postResample(pred = forPredA, obs = testdataA$PH))
-
-#BrandB Training/Test Splitting
-set.seed(123)
-trainidxB<-sample(nrow(brandB),round(0.7*nrow(brandB)),replace=F)
-traindataB<-cstData_all[trainidxB,]
-testdataB<-cstData_all[-trainidxB,]
-
-##RandomForest (on BrandB)
-trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
-rforestB <- caret::train(PH~., data=traindataB, method="cforest", 
-                trControl=trctrl, tuneLength =2, na.action=na.omit)
-forPredB <- predict(rforestB, newdata = testdataB)
-l2<-data.frame(postResample(pred = forPredB, obs = testdataB$PH))
-
-#BrandC Training/Test Splitting
-set.seed(123)
-trainidxC<-sample(nrow(brandC),round(0.7*nrow(brandC)),replace=F)
-traindataC<-cstData_all[trainidxC,]
-testdataC<-cstData_all[-trainidxC,]
-
-##RandomForest (on BrandC)
-trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
-rforestC <- caret::train(PH~., data=traindataC, method="cforest", 
-                trControl=trctrl, tuneLength =2, na.action=na.omit)
-forPredC <- predict(rforestC, newdata = testdataC)
-l3<-data.frame(postResample(pred = forPredC, obs = testdataC$PH))
-
-#BrandD Training/Test Splitting
-set.seed(123)
-trainidxD<-sample(nrow(brandD),round(0.7*nrow(brandD)),replace=F)
-traindataD<-cstData_all[trainidxD,]
-testdataD<-cstData_all[-trainidxD,]
-
-##RandomForest (on BrandD)
-trctrl<- trainControl(method="repeatedcv", number=2,repeats=2)
-rforestD <- caret::train(PH~., data=traindataD, method="cforest", 
-                trControl=trctrl, tuneLength =2, na.action=na.omit)
-forPredD <- predict(rforestD, newdata = testdataD)
-l4<-data.frame(postResample(pred = forPredD, obs = testdataD$PH))
-```
 
 Interestingly the random forest model performed most poorly on the brand with the highest frequency in our dataset as can be seen in the table below.
 
