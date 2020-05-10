@@ -583,11 +583,27 @@ plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
 
 ```
 
+**Plot Goodness of fit**
+
+We see that our predictors fall close to the line.
 
 ```{r}
 
-eval_p<-predict(rforest,stEval, type = "raw")
+eval_p<-predict(rf.model2,stEval, type = "response")
 summary(eval_p)
+
+
+PHMut <- mutate(stEval, predProb = predict(rf.model2 ,stEval,type = "response"))
+grpPH <- group_by(PHMut, cut(eval_p, breaks = unique(quantile(eval_p, (0:25)/26, na.rm=TRUE))))
+
+#hosmer-lemeshow stat
+hlDf <- summarise(grpPH, y= sum(PH), pPred=mean(predProb), count = n())
+hlDf <- mutate(hlDf, se.fit=sqrt(pPred * (1-(pPred)/count)))
+ggplot(hlDf,aes(x=pPred,y=y/count,ymin=y/count-2*se.fit,ymax=y/count+2*se.fit)) +
+    geom_point()+geom_linerange(color=grey(0.75))+geom_abline(intercept=0,slope=1) +
+    xlab("Predicted Probability") +
+    ylab("Observed Proportion")
+
 write.csv(eval_p,"predicted_eval_values_PH.csv")
 ```
 
