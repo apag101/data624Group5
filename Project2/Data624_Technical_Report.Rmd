@@ -159,12 +159,6 @@ gg_miss_upset(stData,
               nintersects = 18)
 ```
 
-```{r eval=FALSE}
-
-summary(complete.cases(stData))
-```
-
-
 ```{r}
 
 cstData <- subset(stData[-2], complete.cases(stData))
@@ -199,9 +193,6 @@ corrplot(cor.plt, method="color", col=col(200),
 
 kab_tab2(names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)], 
         cap = "Variables recommended for removal by caret::findCorrelation function at the 0.85 cutoff")
-
-# sb<-names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)]
-# cstData<-cstData[, -which(names(cstData) %in% c(sb))]
 ```
 
 Before we removed any variables we decided to do our own analysis of the highly correlated variables to see if we came up with the same conclusions as the `findCorrelation` function. First we found all pairs of variables that had a 0.85 correlation or more, which was 13 pairs.  Then we found the frequency of each variable that was a member of one or more of these pairs.  The results can been seen in the two tables below.
@@ -209,15 +200,15 @@ Before we removed any variables we decided to do our own analysis of the highly 
 ```{r}
 
 #Displaying highly correlated pairs
-cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
-cor.plt[lower.tri(cor.plt,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
-cor.plt <- as.data.frame(as.table(cor.plt)) #Turn into a 3-column table
-cor.plt <- na.omit(cor.plt) #Get rid of the junk (NA's) we flagged above
-cor.plt <- subset(cor.plt, abs(cor.plt$Freq)>0.85)
-cor.plt <- cor.plt[order(-abs(cor.plt$Freq)),] #Sort by highest correlation (whether +ve or -ve)
-rownames(cor.plt) <- c()
-names(cor.plt)[3] <- "Correlation"
-kab_tab2(cor.plt, cap="Highly Correlated Variable Pairs")
+cor.plt2 <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
+cor.plt2[lower.tri(cor.plt2,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
+cor.plt2 <- as.data.frame(as.table(cor.plt2)) #Turn into a 3-column table
+cor.plt2 <- na.omit(cor.plt2) #Get rid of the junk (NA's) we flagged above
+cor.plt2 <- subset(cor.plt2, abs(cor.plt2$Freq)>0.85)
+cor.plt2 <- cor.plt2[order(-abs(cor.plt2$Freq)),] #Sort by highest correlation (whether +ve or -ve)
+rownames(cor.plt2) <- c()
+names(cor.plt2)[3] <- "Correlation"
+kab_tab2(cor.plt2, cap="Highly Correlated Variable Pairs")
 ```
 
 ```{r}
@@ -233,23 +224,23 @@ What we found is that there were exactly 5 variables that were most frequently a
 
 ```{r}
 
-cstData <- subset(cstData, select = -c(Balling.Lvl, Density, Balling))
-cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
-cor.plt[lower.tri(cor.plt,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
-cor.plt <- as.data.frame(as.table(cor.plt)) #Turn into a 3-column table
-cor.plt <- na.omit(cor.plt) #Get rid of the junk (NA's) we flagged above
-cor.plt <- subset(cor.plt, abs(cor.plt$Freq)>0.85)
-cor.plt <- cor.plt[order(-abs(cor.plt$Freq)),] #Sort by highest correlation (whether +ve or -ve)
-rownames(cor.plt) <- c()
-names(cor.plt)[3] <- "Correlation"
-kab_tab2(cor.plt, cap="Highly Correlated Variable Pairs")
+cstData2 <- subset(cstData, select = -c(Balling.Lvl, Density, Balling))
+cor.plt3 <- cor(cstData2, use = "pairwise.complete.obs", method = "pearson")
+cor.plt3[lower.tri(cor.plt3,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
+cor.plt3 <- as.data.frame(as.table(cor.plt3)) #Turn into a 3-column table
+cor.plt3 <- na.omit(cor.plt3) #Get rid of the junk (NA's) we flagged above
+cor.plt3 <- subset(cor.plt3, abs(cor.plt3$Freq)>0.85)
+cor.plt3 <- cor.plt3[order(-abs(cor.plt3$Freq)),] #Sort by highest correlation (whether +ve or -ve)
+rownames(cor.plt3) <- c()
+names(cor.plt3)[3] <- "Correlation"
+kab_tab2(cor.plt3, cap="Highly Correlated Variable Pairs")
 ```
 
 Each of the variables in these pairs only appears once so we needed to get rid of one variable from each pair in order to eliminate all pairs of variables with a 0.85 correlation or more.  So we decide to remove the 4 with the lowest correlation to `PH` without removing two from the same pair.  This eliminated `Filler.Speed`, `Alch.Rel`, `Hyd.Pressure2` and `Filler.Level`.  
 
 ```{r}
 
-temp <- subset(cstData, 
+temp <- subset(cstData2, 
                select = c(Alch.Rel, Bowl.Setpoint, Carb.Rel,	Filler.Level,
                           Filler.Speed, Hyd.Pressure2, Hyd.Pressure3,	MFR, PH))
 temp <- (cor(temp, use = "pairwise.complete.obs", method = "pearson")[1:8,9])
@@ -258,7 +249,7 @@ temp <- (cor(temp, use = "pairwise.complete.obs", method = "pearson")[1:8,9])
 
 ```{r}
 
-cstData <- subset(cstData, select = -c(Filler.Speed, Alch.Rel, Hyd.Pressure2, Filler.Level))
+cstData3 <- subset(cstData2, select = -c(Filler.Speed, Alch.Rel, Hyd.Pressure2, Filler.Level))
 ```
 
 So in the end we still removed 7 variables but not all the same ones recommended by the `findCorrelation` function.  Only 2 of the variables recommended by the function matched our list, `Hyd.Pressure2` and  `Filler.Level`.
@@ -271,9 +262,9 @@ Next we partitioned our dataset into training and validation subsets by randomly
 
 #Partition Data
 set.seed(123)
-trainidx<-sample(nrow(cstData),round(0.7*nrow(cstData)),replace=F)
-traindata<-cstData[trainidx,]
-testdata<-cstData[-trainidx,]
+trainidx<-sample(nrow(cstData3),round(0.7*nrow(cstData3)),replace=F)
+traindata<-cstData3[trainidx,]
+testdata<-cstData3[-trainidx,]
 ```
 
 We then tuned a full range of model types including: Linear Regression, Ridge Regression, Lasso, Random Forest, Tree Bag, CTree, Classification and Regression Tree (CART), Multivariate Adaptive Regression Splines (MARS), K-Nearest Neighbors (KNN) and Support Vector Machine (SVM) using repeated cross-validation on all models.  The RMSE, $R^2$, and MAE statistics for each of these models are presented in the table below, ordered by the lowest RMSE to highest and thus best predictive performance to worst.

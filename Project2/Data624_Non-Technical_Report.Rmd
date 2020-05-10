@@ -160,11 +160,6 @@ featurePlot(stData[-c(1:2)],stData$PH)
 A correlation plot shows some strong correlations between predictors.  The `findCorrelation` function from the `caret` library recommends removing the `MFR`, `Hyd.Pressure2`, `Carb.Rel`, `Air.Pressurer`, `Carb.Flow`, `Hyd.Pressure4`, and `Filler.Level` variables at a 0.85 correlation cutoff.  Upping the cutoff to 0.9 only removes one variable, `Carb.Flow`, from that list.  
 
 ```{r fig.height=7, fig.width=8}
-
-#Correlation Matrix
-library(corrplot)
-cor.plt <- cor(stData[-c(1:2)], use = "pairwise.complete.obs", method = "pearson")
-col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
 corrplot(cor.plt, method="color", col=col(200),  
          type="upper", order="hclust",
          tl.col="black", tl.srt=45, tl.cex=0.5,
@@ -174,59 +169,27 @@ corrplot(cor.plt, method="color", col=col(200),
 
 ```{r}
 
-kab_tab2(names(stData[-2])[findCorrelation(cor(stData[-c(1:2)]), cutoff = .85)], 
+kab_tab2(names(cstData)[findCorrelation(cor(cstData[-1]), cutoff = .85)], 
         cap = "Variables recommended for removal by caret::findCorrelation function at the 0.85 cutoff")
-
 ```
 
 Before we removed any variables we decided to do our own analysis of the highly correlated variables to see if we came up with the same conclusions as the `findCorrelation` function. First we found all pairs of variables that had a 0.85 correlation or more, which was 13 pairs.  Then we found the frequency of each variable that was a member of one or more of these pairs.  The results can been seen in the two tables below.
 
 ```{r}
-
-#Displaying highly correlated pairs
-cor.plt <- cor(stData[-c(1:2)], use = "pairwise.complete.obs", method = "pearson")
-cor.plt[lower.tri(cor.plt,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
-cor.plt <- as.data.frame(as.table(cor.plt)) #Turn into a 3-column table
-cor.plt <- na.omit(cor.plt) #Get rid of the junk (NA's) we flagged above
-cor.plt <- subset(cor.plt, abs(cor.plt$Freq)>0.85)
-cor.plt <- cor.plt[order(-abs(cor.plt$Freq)),] #Sort by highest correlation (whether +ve or -ve)
-rownames(cor.plt) <- c()
-names(cor.plt)[3] <- "Correlation"
-kab_tab2(cor.plt, cap="Highly Correlated Variable Pairs")
+kab_tab2(cor.plt2, cap="Highly Correlated Variable Pairs")
 ```
 
 ```{r}
-vars <- c(as.character(cor.plt$Var1), as.character(cor.plt$Var2))
-vars <- as.data.frame(table(vars))
-vars <- vars[order(-vars$Freq),]
-rownames(vars) <- c()
 kab_tab2(vars, cap="Frequency of Variables Involved in Highly Correlated Pairs")
 ```
 
 What we found is that there were exactly 5 variables that were most frequently associated with highly correlated pairs.  Each of these variables, `Alch.Rel`, `Balling`, `Balling.Lvl`, `Carb.Rel`, `Density` was involved in 4 pairs.  None of the other variables were involved in more than one pair.  By removing `Balling.Lvl`, we could eliminate 4 of our highly correlated pairs, by removing `Density` we got rid of 3 more, and with `Balling` 2 more. so we were left with only the following 4 pairs of highly correlated variables.  
 
 ```{r}
-cor.plt <- cor(cstData, use = "pairwise.complete.obs", method = "pearson")
-cor.plt[lower.tri(cor.plt,diag=TRUE)] = NA #Prepare to drop duplicates and meaningless information
-cor.plt <- as.data.frame(as.table(cor.plt)) #Turn into a 3-column table
-cor.plt <- na.omit(cor.plt) #Get rid of the junk (NA's) we flagged above
-cor.plt <- subset(cor.plt, abs(cor.plt$Freq)>0.85)
-cor.plt <- cor.plt[order(-abs(cor.plt$Freq)),] #Sort by highest correlation (whether +ve or -ve)
-rownames(cor.plt) <- c()
-names(cor.plt)[3] <- "Correlation"
-kab_tab2(cor.plt, cap="Highly Correlated Variable Pairs")
+kab_tab2(cor.plt3, cap="Highly Correlated Variable Pairs")
 ```
 
 Each of the variables in these pairs only appears once so we needed to get rid of one variable from each pair in order to eliminate all pairs of variables with a 0.85 correlation or more.  So we decide to remove the 4 with the lowest correlation to `PH` without removing two from the same pair.  This eliminated `Filler.Speed`, `Alch.Rel`, `Hyd.Pressure2` and `Filler.Level`.  
-
-```{r}
-
-temp <- subset(cstData, 
-               select = c(Alch.Rel, Bowl.Setpoint, Carb.Rel,	Filler.Level,
-                          Filler.Speed, Hyd.Pressure2, Hyd.Pressure3,	MFR, PH))
-temp <- (cor(temp, use = "pairwise.complete.obs", method = "pearson")[1:8,9])
-# sort(abs(temp))
-```
 
 So in the end we still removed 7 variables but not all the same ones recommended by the `findCorrelation` function.  Only 2 of the variables recommended by the function matched our list, `Hyd.Pressure2` and  `Filler.Level`.
 
@@ -367,25 +330,10 @@ ggplot(stData, aes(Brand.Code, PH)) +
 We discovered that `Mnf.Flow` is no longer the most important variable at the brand level; rather, `Temperature` is, ranking in the top five for each of the four brands.  By contrast `Mnf.Flow` only shows up in the top 5 list for two brands and in the 3rd and 5th spots. These results suggest that `Mnf.Flow` may not be as robust a predictor as our other models indiciated.
 
 ```{r fig.height=3.5, fig.width=3.5}
-
-# par(mfrow=c(2,2)) # Doesn't work!
-#Variable Importance Ranking (on Brand A)
-rfImpA <- varImp(rforestA, scale = FALSE)
 plot(rfImpA, top=5, scales = list(y = list(cex = 0.8)))
-
-#Variable Importance Ranking (on Brand B)
-rfImpB <- varImp(rforestB, scale = FALSE)
 plot(rfImpB, top=5, scales = list(y = list(cex = 0.8)))
-
-#Variable Importance Ranking (on Brand C)
-rfImpC <- varImp(rforestC, scale = FALSE)
 plot(rfImpC, top=5, scales = list(y = list(cex = 0.8)))
-
-#Variable Importance Ranking (on Brand D)
-rfImpD <- varImp(rforestD, scale = FALSE)
 plot(rfImpD, top=5, scales = list(y = list(cex = 0.8)))
-
-
 ```
 
 
